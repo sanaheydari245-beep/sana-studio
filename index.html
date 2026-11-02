@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Sana Studio | استودیو سنا - توسعه‌دهنده محصولات دیجیتال</title>
+    <meta name="title" content="Sana Studio | استودیو سنا" />
+    <meta name="description" content="Sana Studio فضایی برای طراحی و توسعه محصولات دیجیتال با تمرکز بر سادگی، کاربردپذیری و تجربه کاربری بهتر است." />
+    <meta name="theme-color" content="#3563F5" />
+    
+    <!-- Inline Theme Bootstrap to eliminate flash of unstyled theme -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('sana_studio_theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sana Studio | استودیو سنا" />
+    <meta property="og:description" content="ایده‌ها را به محصول تبدیل می‌کنیم. محصولات دیجیتال کاربردی با تمرکز بر سادگی و تجربه کاربری." />
+    <meta property="og:image" content="/assets/favicon.svg" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sana Studio | استودیو سنا" />
+    <meta name="twitter:description" content="ایده‌ها را به محصول تبدیل می‌کنیم. محصولات دیجیتال کاربردی با تمرکز بر سادگی و تجربه کاربری." />
+    <meta name="twitter:image" content="/assets/favicon.svg" />
+
+    <!-- Google Web Fonts: Vazirmatn for Persian, Plus Jakarta Sans for English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-sana-light dark:bg-sana-dark text-sana-dark dark:text-sana-light transition-colors duration-200 antialiased selection:bg-brand-primary selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
