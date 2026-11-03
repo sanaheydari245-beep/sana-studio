@@ -3,12 +3,15 @@ export type Language = 'fa' | 'en';
 export interface TranslationSchema {
   nav: {
     home: string;
-    about: string;
-    products: string;
-    principles: string;
-    roadmap: string;
+    features: string;
+    howItWorks: string;
+    preview: string;
+    benefits: string;
     faq: string;
     contact: string;
+    downloadApp: string;
+    account: string;
+    signOut: string;
     themeToggle: string;
     langToggle: string;
     menuOpen: string;
@@ -17,70 +20,59 @@ export interface TranslationSchema {
   hero: {
     badge: string;
     title: string;
+    titleHighlight: string;
     subtitle: string;
-    ctaProducts: string;
-    ctaAbout: string;
-    statLocalFirst: string;
-    statLocalFirstSub: string;
-    statScalable: string;
-    statScalableSub: string;
-    statPrivacy: string;
-    statPrivacySub: string;
+    downloadBtn: string;
+    exploreBtn: string;
+    platformNotice: string;
+    stats: {
+      tasksLabel: string;
+      tasksSub: string;
+      habitsLabel: string;
+      habitsSub: string;
+      studyLabel: string;
+      studySub: string;
+    };
   };
-  about: {
-    badge: string;
-    title: string;
-    lead: string;
-    p1: string;
-    p2: string;
-    p3: string;
-    pillarsTitle: string;
-    pillars: Array<{
-      title: string;
-      desc: string;
-    }>;
-  };
-  products: {
-    badge: string;
-    title: string;
-    subtitle: string;
-    statusInDev: string;
-    statusReleased: string;
-    viewDetails: string;
-    closeDetails: string;
-    targetPlatforms: string;
-    verifiedFeaturesTitle: string;
-    useCasesTitle: string;
-    techHighlightsTitle: string;
-    downloadTitle: string;
-    downloadNotAvailableNote: string;
-    featuredBadge: string;
-  };
-  featured: {
-    badge: string;
-    title: string;
-    subtitle: string;
-    description: string;
-    specsTitle: string;
-    architectureTitle: string;
-    architectureDesc: string;
-    ctaDetails: string;
-  };
-  principles: {
+  features: {
     badge: string;
     title: string;
     subtitle: string;
     items: Array<{
+      id: string;
+      title: string;
+      desc: string;
+      tag: string;
+      bullets: string[];
+    }>;
+  };
+  howItWorks: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    steps: Array<{
+      step: string;
       title: string;
       desc: string;
     }>;
   };
-  vision: {
+  preview: {
     badge: string;
     title: string;
     subtitle: string;
-    description: string;
-    points: Array<{
+    tabs: Array<{
+      id: string;
+      label: string;
+      title: string;
+      desc: string;
+      metrics: Array<{ label: string; value: string }>;
+    }>;
+  };
+  benefits: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    items: Array<{
       title: string;
       desc: string;
     }>;
@@ -93,6 +85,27 @@ export interface TranslationSchema {
       q: string;
       a: string;
     }>;
+  };
+  download: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    apkBtn: string;
+    versionInfo: string;
+    sizeInfo: string;
+    instructionsTitle: string;
+    instructions: string[];
+    notice: string;
+  };
+  authModal: {
+    title: string;
+    subtitle: string;
+    googleBtn: string;
+    privacyNote: string;
+    close: string;
+    userGreeting: string;
+    userEmail: string;
+    statusActive: string;
   };
   contact: {
     badge: string;
@@ -138,14 +151,25 @@ export interface TranslationSchema {
     statusNote: string;
   };
   footer: {
-    brandName: string;
-    brandTagline: string;
-    quickLinksTitle: string;
-    productsTitle: string;
-    privacyNote: string;
+    tagline: string;
+    navTitle: string;
+    featuresTitle: string;
+    legalTitle: string;
+    privacy: string;
+    terms: string;
     copyright: string;
-    allRightsReserved: string;
-    languageLabel: string;
+    reserved: string;
+    designedBy: string;
+  };
+  privacyModal: {
+    title: string;
+    lastUpdated: string;
+    sections: Array<{ heading: string; body: string }>;
+  };
+  termsModal: {
+    title: string;
+    lastUpdated: string;
+    sections: Array<{ heading: string; body: string }>;
   };
 }
 
@@ -153,172 +177,355 @@ export const translations: Record<Language, TranslationSchema> = {
   fa: {
     nav: {
       home: 'صفحه اصلی',
-      about: 'معرفی استودیو',
-      products: 'محصولات',
-      principles: 'اصول و ارزش‌ها',
-      roadmap: 'مسیر توسعه',
+      features: 'امکانات و قابلیت‌ها',
+      howItWorks: 'نحوه کارکرد',
+      preview: 'نمای اپلیکیشن',
+      benefits: 'مزایا و ارزش‌ها',
       faq: 'پرسش‌های متداول',
-      contact: 'تماس با ما',
-      themeToggle: 'تغییر حالت نور (روشن / تاریک)',
+      contact: 'ارتباط با ما',
+      downloadApp: 'دانلود اپلیکیشن',
+      account: 'حساب کاربری',
+      signOut: 'خروج از حساب',
+      themeToggle: 'تغییر تم (روشن / تاریک)',
       langToggle: 'English',
       menuOpen: 'باز کردن منو',
       menuClose: 'بستن منو',
     },
     hero: {
-      badge: 'استودیو طراحی و مهندسی نرم‌افزار',
-      title: 'ایده‌ها را به محصول تبدیل می‌کنیم.',
+      badge: 'اپلیکیشن مدیریت جامع زندگی و مطالعه برای اندروید',
+      title: 'زندگی‌ات را مدیریت کن،',
+      titleHighlight: 'هر روز یک قدم پیشرفت کن.',
       subtitle:
-        'Sana Studio فضایی برای طراحی و توسعه محصولات دیجیتال با تمرکز بر سادگی، کاربردپذیری و تجربه کاربری بهتر است.',
-      ctaProducts: 'مشاهده محصول',
-      ctaAbout: 'آشنایی با برند',
-      statLocalFirst: 'Local-First',
-      statLocalFirstSub: 'پایگاه‌داده محلی آفلاین بدون وابستگی ابری',
-      statScalable: 'توسعه پایدار',
-      statScalableSub: 'معماری استاندارد و آماده گسترش',
-      statPrivacy: 'حفظ حریم خصوصی',
-      statPrivacySub: 'بدون ردیاب‌های تجاری و بدون تبلیغات',
+        'Emerald Life یک دستیار هوشمند، جامع و محلی (Local-first) برای سازماندهی وظایف روزانه، تثبیت عادت‌های پایدار، زمان‌بندی دقیق برنامه‌ها، پایش زمان مطالعه و تحلیل شفاف بهره‌وری است.',
+      downloadBtn: 'دانلود رایگان نسخه اندروید',
+      exploreBtn: 'مشاهده قابلیت‌ها',
+      platformNotice: 'توسعه‌یافته به صورت اختصاصی برای اندروید • کاملاً محلی و بدون وابستگی ابری',
+      stats: {
+        tasksLabel: 'مدیریت اولویت‌ها',
+        tasksSub: 'سیستم پویا و منعطف وظایف',
+        habitsLabel: 'زنجیره استمرار',
+        habitsSub: 'ثبت عادت‌ها و روتین‌های روزمره',
+        studyLabel: 'تمرکز و مطالعه',
+        studySub: 'تایمر هوشمند و لاگ سرفصل‌ها',
+      },
     },
-    about: {
-      badge: 'درباره ما',
-      title: 'Sana Studio چیست و چه هدفی دارد؟',
-      lead: 'یک استودیوی مستقل برای ساخت ابزارهای نرم‌افزاری کاربردی، بدون زوائد اضافه و متمرکز بر ارزش واقعی برای کاربر.',
-      p1: 'سنا استودیو (Sana Studio) بر پایه یک اصل بنیادین شکل گرفته است: ابزارهای روزمره باید سریع، سبک و بدون پیچیدگی‌های بی‌مورد باشند. در دورانی که اغلب برنامه‌ها با اعلان‌های مداوم و جمع‌آوری بی‌رویه اطلاعات همراه شده‌اند، ما محصولاتی می‌سازیم که در خدمت تمرکز، انضباط فردی و آرامش کاربر باشند.',
-      p2: 'تمرکز اصلی استودیو بر تولید ابزارهای کاربردی با رویکرد محلی (Local-first) است؛ به این معنی که داده‌های شما روی حافظه اختصاصی دستگاه شما باقی می‌مانند و برنامه بدون نیاز به اینترنت بهترین عملکرد را ارائه می‌دهد.',
-      p3: 'ما کیفیت و دقت در پیاده‌سازی را بر کمیت ترجیح می‌دهیم و هر محصول را بر پایه حل یک نیاز واقعی و ملموس، با کد تمیز و به دور از ادعاهای اغراق‌آمیز توسعه می‌دهیم.',
-      pillarsTitle: 'ارکان بنیادین طراحی در استودیو سنا',
-      pillars: [
-        {
-          title: 'سادگی در تجربه (Simplicity)',
-          desc: 'حذف عناصر غیرضروری؛ رابط کاربری باید در اولین نگاه قابل فهم و به دور از سردرگمی باشد.',
-        },
-        {
-          title: 'کاربردپذیری واقعی (Usability)',
-          desc: 'تمرکز بر اثربخشی در شرایط استفاده روزمره، بدون تحمیل روندهای پیچیده به کاربر.',
-        },
-        {
-          title: 'معماری پایدار و آفلاین (Reliability)',
-          desc: 'کارکرد مستقل از شبکه اینترنت و صیانت از داده‌ها بر پایه پایگاه‌داده محلی.',
-        },
-      ],
-    },
-    products: {
-      badge: 'محصولات استودیو',
-      title: 'محصولات Sana Studio',
-      subtitle: 'Emerald Life یک اپلیکیشن اندرویدی برای مدیریت زندگی و مطالعه است.',
-      statusInDev: 'در حال توسعه برای اندروید',
-      statusReleased: 'منتشرشده',
-      viewDetails: 'مشاهده مشخصات کامل',
-      closeDetails: 'بستن پنجره',
-      targetPlatforms: 'سیستم‌عامل مقصد:',
-      verifiedFeaturesTitle: 'امکانات تأییدشده نسخه اندروید:',
-      useCasesTitle: 'موارد کاربرد:',
-      techHighlightsTitle: 'فناوری‌های کلیدی:',
-      downloadTitle: 'وضعیت انتشار نسخه اندروید:',
-      downloadNotAvailableNote:
-        'این اپلیکیشن اندرویدی هم‌اکنون در مرحله توسعه فعال و بهینه‌سازی قرار دارد و نسخه نهایی آن هنوز منتشر نشده است. پس از تکمیل بررسی‌ها، لینک رسمی دانلود اندروید در این قسمت قرار خواهد گرفت.',
-      featuredBadge: 'اپلیکیشن اختصاصی اندروید',
-    },
-    featured: {
-      badge: 'محصول رسمی در حال توسعه',
-      title: 'Emerald Life',
-      subtitle: 'اپلیکیشن اندرویدی مدیریت درس و زندگی بر بستر فلاتر و دیتابیس محلی SQLite',
-      description:
-        'اپلیکیشن Emerald Life محصول رسمی Sana Studio، یک اپلیکیشن اندرویدی برای مدیریت زندگی و مطالعه است. این محصول مدیریت تکالیف درسی، تقویم و برنامه هفتگی، ردیابی زنجیره استمرار عادات (Habit Streak) و تایمر تمرکز پومودورو را در یک محیط کاملاً آفلاین اندرویدی گردهم آورده است.',
-      specsTitle: 'قابلیت‌های پیاده‌سازی‌شده در سورس پروژه:',
-      architectureTitle: 'معماری ۱۰۰٪ محلی (Local-first):',
-      architectureDesc:
-        'تمام داده‌ها اعم از وظایف، عادات و آمارهای مطالعه در پایگاه‌داده محلی SQLite دستگاه اندرویدی شما نگهداری می‌شوند؛ بدون نیاز به اینترنت و بدون ارسال داده‌ها به هیچ سرور خارجی.',
-      ctaDetails: 'مشاهده مشخصات Emerald Life',
-    },
-    principles: {
-      badge: 'اصول و تعهدات',
-      title: 'ارزش‌های کلیدی در تمام محصولات سنا',
+    features: {
+      badge: 'قابلیت‌های واقعی نرم‌افزار',
+      title: 'یک پلتفرم کامل، بدون ابزارهای متفرقه',
       subtitle:
-        'اصولی شفاف و غیرقابل چشم‌پوشی که مبنای طراحی، تجربه کاربری و کدنویسی در استودیو سنا هستند.',
+        'تمامی ماژول‌های Emerald Life بر پایه معماری داده‌های محلی و نیازهای واقعی یادگیری و زندگی هدفمند طراحی شده‌اند.',
       items: [
         {
-          title: 'سادگی در استفاده',
-          desc: 'نرم‌افزار کارآمد نیاز به آموزش پیچیده ندارد؛ کوتاه‌ترین مسیر برای انجام کار طراحی می‌شود.',
+          id: 'tasks',
+          title: 'مدیریت پیشرفته وظایف (Task Management)',
+          desc: 'ایجاد تسک‌ها با تعیین اولویت‌بندی، دسته‌بندی موضوعی، موعد مقرر و ثبت وضعیت تکمیل جهت حفظ انضباط کاری.',
+          tag: 'سازماندهی',
+          bullets: [
+            'ثبت تسک‌ها همراه با یادداشت و جزئیات',
+            'سطوح اولویت‌بندی فوری، ضروری و عادی',
+            'فیلتر هوشمند بر اساس وضعیت اتمام و تاریخ',
+            'مرتب‌سازی آسان و پایش وظایف روزانه',
+          ],
         },
         {
-          title: 'طراحی کاربرمحور',
-          desc: 'نیاز واقعی کاربر همواره بر ترفندهای نگه‌داشت اجباری یا الگوریتم‌های جلب توجه اولویت دارد.',
+          id: 'habits',
+          title: 'مدیریت و تثبیت عادت‌ها (Habit Tracker)',
+          desc: 'ساخت و پیگیری عادت‌های فردی، حفظ زنجیره استمرار و تبدیل اهداف کوچک به رفتارهای خودکار و ماندگار.',
+          tag: 'رشد فردی',
+          bullets: [
+            'تعریف عادت‌های روزانه، هفتگی و بازه‌ای',
+            'محاسبه زنجیره موفقیت (Streak) و نرخ پیوستگی',
+            'ثبت سریع و تک‌لمسی انجام عادت',
+            'پایش روند پایداری و یادآورهای هدفمند',
+          ],
         },
         {
-          title: 'توجه به کیفیت و کارایی',
-          desc: 'کدنویسی تمیز، مصرف بهینه باتری و رم، و اجرای روان و سریع در تمام بخش‌ها.',
+          id: 'schedule',
+          title: 'برنامه‌ها و تقویم زمانی (Schedule & Programs)',
+          desc: 'طراحی جدول زمانی روزمره، مدیریت رویدادهای پیش‌رو و چیدمان حساب‌شده فعالیت‌های آموزشی و شخصی.',
+          tag: 'مدیریت زمان',
+          bullets: [
+            'تقویم جامع شمسی (جلالی) و میلادی هماهنگ',
+            'مشاهده فعالیت‌های هر روز در یک نگاه',
+            'جلوگیری از تداخل برنامه‌ها و کلاس‌ها',
+            'برنامه‌ریزی دقیق جلسات، امتحانات و رویدادها',
+          ],
         },
         {
-          title: 'توسعه و تکامل مستمر',
-          desc: 'بهبود گام‌به‌گام و اصلاح منظم بر اساس بازخوردها و آزمون روی دستگاه‌های واقعی.',
+          id: 'study',
+          title: 'جلسات مطالعه و تایمر تمرکز (Study Sessions)',
+          desc: 'ابزار اختصاصی مدیریت مطالعه همراه با تایمر تمرکز، تفکیک دروس و مباحث، و ثبت ساعات مفید خواندن.',
+          tag: 'ویژه محصلان',
+          bullets: [
+            'تایمر دقیق تمرکز با فواصل استراحت هوشمند',
+            'ثبت تفکیک‌شده مبحث، کتاب و مدت مطالعه',
+            'لاگ تاریخچه کامل تمام جلسات آموزشی',
+            'صدای زنگ اعلام اتمام بازه و استراحت',
+          ],
         },
         {
-          title: 'حفظ حریم خصوصی کاربران',
-          desc: 'اطلاعات شما کاملاً شخصی است. ما هیچ اطلاعات غیرضروری را جمع‌آوری نمی‌کنیم و بر معماری Local-first تکیه داریم.',
+          id: 'analytics',
+          title: 'آمار و تحلیل جامع عملکرد (Analytics)',
+          desc: 'مشاهده کارنامه بهره‌وری روزانه، هفتگی، ماهانه و نمودار روند ۶ ماهه برای شناخت الگوهای رفتاری.',
+          tag: 'بینش آماری',
+          bullets: [
+            'کارنامه جامع درصد تکمیل برنامه‌ها و تسک‌ها',
+            'نمودار مقایسه‌ای ساعات مطالعه در طول هفته',
+            'گزارش دوره‌ای ۶ ماهه پیشرفت فردی',
+            'نمایش بصری عملکرد بدون نیاز به اتصال اینترنت',
+          ],
+        },
+        {
+          id: 'notifications',
+          title: 'یادآورها و اعلانات هوشمند (Notifications)',
+          desc: 'سیستم اطلاع‌رسانی بومی اندروید برای یادآوری سررسید تسک‌ها، زمان عادت‌ها و اعلان شروع جلسات مطالعه.',
+          tag: 'هماهنگی',
+          bullets: [
+            'یادآورهای به‌موقع بدون مصرف باتری اضافه',
+            'اعلان پایان بازه‌های تمرکز و زنگ استراحت',
+            'تنظیم اختصاصی ساعت و صدای اعلانات',
+            'عملکرد کاملاً آفلاین بدون قطعی در اعلان',
+          ],
+        },
+        {
+          id: 'personalization',
+          title: 'شخصی‌سازی گسترده و تم‌ها (Customization)',
+          desc: 'حالت‌های تم روشن و تاریک OLED، انتخاب رنگ سازمانی، تغییر فرمت تقویم و گزینه‌های سفارشی تایمر.',
+          tag: 'انعطاف‌پذیری',
+          bullets: [
+            'پشتیبانی همزمان از تم روشن، تیره و Ultra Dark',
+            'بیش از ۳۰ پالت رنگی برای سربرگ و اِلِمان‌ها',
+            'سوئیچ سریع میان تقویم شمسی و میلادی',
+            'دو زبانه بودن محیط اپلیکیشن (فارسی و انگلیسی)',
+          ],
         },
       ],
     },
-    vision: {
-      badge: 'مسیر توسعه',
-      title: 'آینده محصولات Sana Studio',
-      subtitle: 'تعهد به پایداری، توسعه مرحله‌به‌مرحله و خلق ابزارهای باکیفیت برای تمرکز و یادگیری',
-      description:
-        'رویکرد استودیو سنا بر ساخت نرم‌افزارهای هدفمند، سبک و خصوصی استوار است. مسیر پیش‌رو شامل تکمیل پایدار محصول فعلی و در آینده، طراحی ابزارهای تکمیلی بر پایه همین اصول خواهد بود.',
-      points: [
+    howItWorks: {
+      badge: 'شروع آسان و گام‌به‌گام',
+      title: 'مسیر بهره‌وری با Emerald Life',
+      subtitle: 'چگونه در ۵ گام منظم، کنترل کامل وظایف و ساعات یادگیری خود را به دست بگیرید.',
+      steps: [
         {
-          title: 'تکمیل و انتشار پایدار نسخه اندروید Emerald Life',
-          desc: 'انجام تست‌های عملکردی، بهینه‌سازی رابط کاربری روی دستگاه‌های اندرویدی و آماده‌سازی برای انتشار عمومی در مارکت‌های رسمی.',
+          step: '۰۱',
+          title: 'تنظیم فضای کاری و اولویت‌ها',
+          desc: 'برنامه را باز کرده، زبان و تقویم مورد نظر را برگزینید و رنگ دلخواه رابط کاربری را تنظیم کنید.',
         },
         {
-          title: 'توسعه ابزارهای متمرکز بر حریم خصوصی',
-          desc: 'تحقیق و پیاده‌سازی ابزارهای دیجیتال جدید بر پایه معماری محلی (Local-first) و عدم وابستگی به سرورهای خارجی.',
+          step: '۰۲',
+          title: 'ثبت وظایف و جدول زمان‌بندی',
+          desc: 'تسک‌های تحصیلی و کارهای روزانه را با اولویت‌بندی مشخص در بخش وظایف و تقویم اضافه کنید.',
         },
         {
-          title: 'بهینه‌سازی مستمر تجربه کاربری',
-          desc: 'ارتقای پیوسته سرعت، کاهش مصرف منابع سخت‌افزاری و طراحی محیط‌های بدون حواس‌پرتی.',
+          step: '۰۳',
+          title: 'تعریف و پایش عادت‌های مثبت',
+          desc: 'عادت‌های روزانه خود (ورزش، مطالعه آزاد، مرور لغات) را ثبت کرده و هر روز تیک بزنید.',
+        },
+        {
+          step: '۰۴',
+          title: 'مدیریت جلسات مطالعه با تایمر',
+          desc: 'درس مورد نظر را انتخاب کنید، تایمر تمرکز را استارت بزنید و زمان واقعی مطالعه را ذخیره کنید.',
+        },
+        {
+          step: '۰۵',
+          title: 'بررسی کارنامه و نمودارهای رشد',
+          desc: 'در پایان هفته، گزارش روند ۶ ماهه و ساعات مطالعه خود را در تب تحلیل مشاهده و بهینه‌سازی کنید.',
+        },
+      ],
+    },
+    preview: {
+      badge: 'طراحی رابط کاربری مدرن',
+      title: 'پیش‌نمایش بخش‌های Emerald Life',
+      subtitle: 'نگاهی به بخش‌های گوناگون اپلیکیشن که با دقت و ظرافت بالا برای سیستم‌عامل اندروید پیاده شده است.',
+      tabs: [
+        {
+          id: 'home',
+          label: 'داشبورد اصلی',
+          title: 'صفحه اصلی (Home Overview)',
+          desc: 'مشاهده سریع وضعیت تسک‌های امروز، عادت‌های پیش‌رو، میانگین ساعات مطالعه و نقل‌قول‌های انگیزشی.',
+          metrics: [
+            { label: 'وضعیت روزانه', value: 'خلاصه پویا' },
+            { label: 'تقویم جاری', value: 'خورشیدی/میلادی' },
+            { label: 'تمرکز روز', value: 'دسترسی سریع' },
+          ],
+        },
+        {
+          id: 'tasks',
+          label: 'وظایف و تسک‌ها',
+          title: 'لیست تعاملی تسک‌ها (Tasks)',
+          desc: 'فیلتر سریع کارهای جاری و انجام‌شده با رنگ‌بندی اولویت‌های کاری و تیک زدن آسان پس از اتمام.',
+          metrics: [
+            { label: 'دسته‌بندی', value: 'بر اساس اولویت' },
+            { label: 'ثبت جزئیات', value: 'یادداشت‌دار' },
+            { label: 'مرتب‌سازی', value: 'بر اساس تاریخ' },
+          ],
+        },
+        {
+          id: 'habits',
+          label: 'زنجیره عادت‌ها',
+          title: 'ردیاب پایدار عادت‌ها (Habits Tracker)',
+          desc: 'نمایش خط استمرار روزانه با تقویم لمسی و انیمیشن موفقیت برای تقویت پیوستگی رفتارهای مثبت.',
+          metrics: [
+            { label: 'Streak Counter', value: 'زنجیره فعال' },
+            { label: 'ثبت آسان', value: 'تک‌لمسی' },
+            { label: 'پایش روند', value: 'آرشیو ۳۰ روزه' },
+          ],
+        },
+        {
+          id: 'schedule',
+          label: 'جدول برنامه‌ها',
+          title: 'تقویم و برنامه‌ریزی (Schedule)',
+          desc: 'مشاهده رویدادها، کلاس‌ها و برنامه‌های اختصاصی هر روز در ساختاری تمیز و بدون شلوغی.',
+          metrics: [
+            { label: 'رویدادها', value: 'برنامه ساعتی' },
+            { label: 'هماهنگی', value: 'بدون تداخل' },
+            { label: 'سررسیدها', value: 'یادآور بومی' },
+          ],
+        },
+        {
+          id: 'study',
+          label: 'جلسات مطالعه',
+          title: 'تایمر متمرکز یادگیری (Focus & Study)',
+          desc: 'ثبت زمان دقیق به همراه مشخص کردن مبحث آموزشی و کنترل وقفه‌ها و فواصل استراحت هوشمند.',
+          metrics: [
+            { label: 'تایمر هوشمند', value: 'دقیقه‌ای' },
+            { label: 'لاگ مباحث', value: 'تفکیک دروس' },
+            { label: 'آلارم پایان', value: 'هشدار صوتی' },
+          ],
+        },
+        {
+          id: 'analytics',
+          label: 'نمودار و آمار',
+          title: 'کارنامه و گراف‌های تحلیلی (Analytics)',
+          desc: 'نمودارهای ستونی مقایسه ساعات مطالعه هفتگی و ماهیانه به همراه پایش نسبت موفقیت در تسک‌ها.',
+          metrics: [
+            { label: 'افق دید', value: '۶ ماهه' },
+            { label: 'تفکیک مطالعه', value: 'ساعتی/روزانه' },
+            { label: 'محاسبه بومی', value: 'بدون سرور' },
+          ],
+        },
+        {
+          id: 'settings',
+          label: 'تنظیمات شخصی',
+          title: 'سفارشی‌سازی ظاهر و عملکرد (Settings)',
+          desc: 'سوئیچ تم تاریک Ultra Dark، تغییر زبان، تنظیمات زنگ هشدار و انتخاب از بین ۳۰ پالت رنگی جذاب.',
+          metrics: [
+            { label: 'حالت تاریک', value: 'OLED / Dark' },
+            { label: 'رنگ سازمانی', value: '۳۰ رنگ' },
+            { label: 'زبان‌ها', value: 'فارسی / انگلیسی' },
+          ],
+        },
+      ],
+    },
+    benefits: {
+      badge: 'ارزش‌های کلیدی محصول',
+      title: 'چرا کاربران Emerald Life را برمی‌گزینند؟',
+      subtitle: 'تمرکز بر تجربه کاربری مستقل، حریم خصوصی مطلق داده‌ها و ابزارهای منسجم در یک برنامه.',
+      items: [
+        {
+          title: 'انضباط فردی و سازماندهی بدون پراکندگی',
+          desc: 'به جای استفاده همزمان از چند برنامه مجزا برای تسک، عادت، تایمر و تقویم، همه چیز در یک محیط یکپارچه مدیریت می‌شود.',
+        },
+        {
+          title: 'حفظ ۱۰۰٪ حریم خصوصی با معماری Local-first',
+          desc: 'کلیه اطلاعات، ساعات مطالعه و برنامه‌های شخصی شما فقط در حافظه امن گوشی و در پایگاه‌داده SQLite محلی ذخیره می‌شود.',
+        },
+        {
+          title: 'برنامه‌ریزی دقیق و مطالعه نتیجه‌محور',
+          desc: 'با ثبت جلسات یادگیری و استفاده از تایمرهای تمرکز، زمان‌های پرت کاهش یافته و کیفیت ساعات مطالعه بالا می‌رود.',
+        },
+        {
+          title: 'بینش واقعی و واقع‌بینانه از پیشرفت',
+          desc: 'نمودارهای آماری دقیق به شما کمک می‌کنند تا نقاط قوت و افت‌های هفتگی خود را با داده‌های واقعی شناسایی کنید.',
+        },
+        {
+          title: 'شخصی‌سازی عمیق با سلیقه شما',
+          desc: 'با وجود تم تاریک مخصوص نمایشگرهای اولد و پالت‌های رنگی متنوع، محیط کاری کاملاً مطابق با ترجیح بصری شما شکل می‌گیرد.',
+        },
+        {
+          title: 'استقلال کامل از اتصال اینترنت',
+          desc: 'تمامی بخش‌ها، تایمرها، آمارها و اعلان‌ها در شرایط آفلاین و بدون هیچ اختلالی کار می‌کنند.',
         },
       ],
     },
     faq: {
-      badge: 'پرسش‌های متداول',
-      title: 'سوالاتی که ممکن است مطرح باشند',
-      subtitle: 'پاسخ‌های شفاف و صادقانه درباره استودیو، اپلیکیشن و خط‌مشی‌ها',
+      badge: 'پاسخ به ابهامات متداول',
+      title: 'پرسش‌های پرتکرار کاربران',
+      subtitle: 'شفافیت کامل پیرامون قابلیت‌ها، سیستم‌عامل‌ها، روش دانلود و خط‌مشی‌های Emerald Life.',
       items: [
         {
-          q: 'Sana Studio (استودیو سنا) چیست؟',
-          a: 'استودیو سنا یک فضای مستقل توسعه نرم‌افزار است که بر ساخت ابزارهای دیجیتال کاربردی، محلی (Local-first) و متمرکز بر بهره‌وری، مطالعه و سبک زندگی تمرکز دارد.',
+          q: 'اپلیکیشن Emerald Life دقیقاً چیست و چه کمکی می‌کند؟',
+          a: 'Emerald Life یک سیستم جامع مدیریت زندگی و مطالعه برای اندروید است که ابزارهای مدیریت وظایف، ردیابی عادت‌ها، تقویم و برنامه‌ها، تایمر تمرکز مطالعه و نمودارهای تحلیلی را در یک محیط زیبا و سبک گرد هم آورده است.',
         },
         {
-          q: 'محصولات این استودیو برای چه سیستم‌عاملی هستند و از کجا می‌توان دریافت کرد؟',
-          a: 'اپلیکیشن Emerald Life به صورت اختصاصی برای سیستم‌عامل Android توسعه داده شده است. پس از اتمام فاز توسعه و بررسی‌های کیفی، نسخه اندروید از طریق مارکت‌های رسمی از جمله کافه‌بازار و وبسایت رسمی در دسترس قرار خواهد گرفت. در حال حاضر نسخه دیگری برای سایر پلتفرم‌ها وجود ندارد.',
+          q: 'Emerald Life برای چه سیستم‌عامل‌هایی منتشر شده است؟',
+          a: 'این اپلیکیشن در حال حاضر به صورت اختصاصی برای سیستم‌عامل Android توسعه داده شده است. نسخه‌ای برای iOS، ویندوز یا وب وجود ندارد و تمرکز تیم بر روی تجربه بهینه کاربری در اندروید است.',
         },
         {
-          q: 'آیا اپلیکیشن‌ها رایگان هستند؟',
-          a: 'بخش‌های اصلی و پایه به صورت دسترسی آزاد طراحی می‌شوند. خط‌مشی استودیو پرهیز از اشتراک‌های اجباری و حفظ دسترسی آسان برای کاربران است.',
+          q: 'چگونه می‌توان اپلیکیشن را دریافت و نصب کرد؟',
+          a: 'شما می‌توانید فایل رسمی نصب مستقیم (APK) را از بخش دانلود همین وب‌سایت دریافت کنید. همچنین نسخه‌های پایدار به مرور در استورهای رسمی اندروید قرار خواهند گرفت.',
         },
         {
-          q: 'چگونه می‌توان با استودیو ارتباط برقرار کرد؟',
-          a: 'شما می‌توانید از طریق فرم تماس انتهای همین صفحه یا ارسال ایمیل مستقیم به sanaheydari245@gmail.com نظرات و پیشنهادات خود را مطرح کنید.',
+          q: 'آیا برای استفاده از برنامه نیاز به اینترنت و ساخت اکانت است؟',
+          a: 'خیر؛ معماری برنامه Local-first است. یعنی تمام امکانات و داده‌ها به صورت محلی در دستگاه شما قرار می‌گیرند و بدون اتصال اینترنت و بدون نیاز به ورود اجباری کار می‌کنند.',
         },
         {
-          q: 'آیا در آینده محصولات دیگری اضافه خواهند شد؟',
-          a: 'بله؛ با تکمیل و انتشار Emerald Life، برنامه‌ها و ابزارهای جدیدی که با استانداردها و اصول استودیو همخوانی داشته باشند، به مرور معرفی و به سایت اضافه خواهند شد.',
+          q: 'آیا تقویم شمسی و زبان فارسی پشتیبانی می‌شود؟',
+          a: 'بله؛ اپلیکیشن به صورت کامل و استاندارد از تقویم خورشیدی (جلالی)، میلادی، زبان فارسی با فونت وزیرمتن و همچنین زبان انگلیسی پشتیبانی می‌کند.',
+        },
+        {
+          q: 'آیا می‌توان اعلانات و یادآورها را شخصی‌سازی کرد؟',
+          a: 'بله؛ شما می‌توانید یادآورهای مستقل برای سررسید تسک‌ها، زمان ثبت عادت‌ها، و آلارم‌های صوتی پایان بازه تمرکز و استراحت را با دقت دقیقه تنظیم نمایید.',
+        },
+        {
+          q: 'آیا حالت تاریک (Dark Mode) در دسترس است؟',
+          a: 'بله؛ علاوه بر تم روشن، حالت تاریک استاندارد و همچنین حالت Ultra Dark (مشکی مطلق ویژه نمایشگرهای OLED برای صرفه‌جویی باتری) در بخش تنظیمات در دسترس است.',
+        },
+        {
+          q: 'آیا اطلاعات من به سرورهای خارجی ارسال می‌شود؟',
+          a: 'خیر؛ حریم خصوصی خط قرمز پروژه است. داده‌های برنامه‌ها و ساعات مطالعه شما هرگز بدون رضایت یا به سرورهای واسطه ارسال نمی‌شوند.',
         },
       ],
     },
+    download: {
+      badge: 'دریافت مستقیم و رسمی',
+      title: 'Emerald Life را روی اندروید تجربه کنید',
+      subtitle: 'نسخه رسمی و تاییدشده را دانلود کنید و سبک زندگی و مطالعه خود را هوشمندانه متحول سازید.',
+      apkBtn: 'دانلود مستقیم فایل APK',
+      versionInfo: 'نسخه رسمی: 1.0.0 (پایدار)',
+      sizeInfo: 'حجم فایل: حدود ۶۷ مگابایت',
+      instructionsTitle: 'راهنمای نصب سریع روی اندروید:',
+      instructions: [
+        'روی دکمه دانلود کلیک کنید تا فایل emerald-life.apk دریافت شود.',
+        'پس از اتمام دانلود، روی اعلان یا فایل دانلود شده کلیک نمایید.',
+        'در صورت درخواست سیستم، مجوز Install unknown apps را برای مرورگر خود موقتاً فعال کنید.',
+        'روی Install بزنید و اپلیکیشن را اجرا نمایید.',
+      ],
+      notice: 'نیازمند سیستم‌عامل اندروید ۷.۰ و بالاتر • تست‌شده و امن',
+    },
+    authModal: {
+      title: 'ورود به حساب کاربری',
+      subtitle: 'جهت هماهنگی بازخوردها و پشتیبانی، با حساب رسمی گوگل خود متصل شوید.',
+      googleBtn: 'ورود امن با حساب Google',
+      privacyNote: 'احراز هویت از طریق درگاه امن Google OAuth 2.0 انجام می‌شود و به پسورد شما دسترسی نخواهد داشت.',
+      close: 'بستن پنجره',
+      userGreeting: 'خوش آمدید',
+      userEmail: 'نشانی حساب:',
+      statusActive: 'حساب فعال',
+    },
     contact: {
-      badge: 'ارتباط مستقیم',
-      title: 'با ما در ارتباط باشید',
-      subtitle: 'نظرات، پیشنهادات یا ایده‌های شما برای بهبود محصولات Sana Studio برای ما ارزشمند است.',
+      badge: 'ارتباط مستقیم و پشتیبانی',
+      title: 'با تیم توسعه در ارتباط باشید',
+      subtitle: 'نظرات، پیشنهادات، گزارش خطاها یا ایده‌های ارزشمند خود درباره Emerald Life را برای ما بفرستید.',
       nameLabel: 'نام و نام خانوادگی',
       namePlaceholder: 'مثال: علی رضایی',
-      emailLabel: 'نشانی ایمیل',
+      emailLabel: 'نشانی ایمیل معتبر',
       emailPlaceholder: 'name@example.com',
       subjectLabel: 'موضوع پیام',
-      subjectPlaceholder: 'درباره محصول، بازخورد یا پیشنهاد...',
+      subjectPlaceholder: 'پیشنهاد قابلیت، بازخورد یا سوال...',
       messageLabel: 'متن پیام شما',
-      messagePlaceholder: 'پیام یا نظر خود را اینجا بنویسید...',
-      submitBtn: 'ارسال پیام',
+      messagePlaceholder: 'پیام، نظر یا بازخورد خود را اینجا بنویسید...',
+      submitBtn: 'ارسال امن پیام',
       submittingBtn: 'در حال ارسال پیام...',
       validationErrors: {
         nameRequired: 'لطفاً نام خود را وارد کنید.',
@@ -335,201 +542,429 @@ export const translations: Record<Language, TranslationSchema> = {
         messageMax: 'متن پیام نباید بیشتر از ۳۰۰۰ کاراکتر باشد.',
       },
       successTitle: 'پیام شما با موفقیت ارسال شد',
-      successMessage: 'با تشکر از پیام شما. پیام مستقیماً به نشانی sanaheydari245@gmail.com ارسال شد و به زودی به ایمیل شما پاسخ خواهیم داد.',
+      successMessage: 'با تشکر از پیام شما. پیام مستقیماً به صندوق ایمیل تیم ارسال شد و به زودی به ایمیل شما پاسخ خواهیم داد.',
       errorTitle: 'خطا در ارسال پیام',
-      errorMessage: 'ارسال پیام با سرویس ایمیل ناموفق بود. لطفاً مجدداً تلاش کنید یا مستقیماً از طریق ایمیل پیام خود را ارسال فرمایید.',
+      errorMessage: 'ارسال پیام با سرویس با خطا مواجه شد. لطفاً مجدداً تلاش کنید یا مستقیماً ایمیل بزنید.',
       rateLimitWarning: 'لطفاً پیش از ارسال پیام جدید، ۶۰ ثانیه صبر فرمایید.',
-      unconfiguredNotice: 'کلیدهای اتصال EmailJS در متغیرهای محیطی (.env) تنظیم نشده‌اند.',
+      unconfiguredNotice: 'سرویس ارسال متصل نشده است.',
       unconfiguredSetupHint: 'تا زمان تنظیم کلیدها، می‌توانید از طریق دکمه زیر مستقیماً با نرم‌افزار ایمیل خود پیام ارسال نمایید.',
       fallbackMailBtn: 'ارسال مستقیم از طریق ایمیل',
       sendAnotherBtn: 'ارسال پیام جدید',
       tryAgainBtn: 'تلاش مجدد',
       clientActionNotice:
-        'ارسال امن و مستقیم: پیام شما از طریق ارتباط امن SSL با سرویس EmailJS مستقیماً به صندوق ایمیل استودیو منتقل می‌شود و هیچ اطلاعاتی در پایگاه‌داده ذخیره نمی‌گردد.',
-      directEmailLabel: 'نشانی ایمیل رسمی استودیو:',
+        'ارسال امن و مستقیم: پیام شما از طریق ارتباط رمزنگاری‌شده SSL به سرور اختصاصی منتقل شده و مستقیماً به توسعه‌دهنده ارسال می‌شود.',
+      directEmailLabel: 'نشانی ایمیل رسمی ارتباط:',
       directEmailValue: 'sanaheydari245@gmail.com',
-      statusNote: 'پاسخ‌ها در اسرع وقت به ایمیل شما ارسال خواهد شد.',
+      statusNote: 'پاسخ‌ها در اسرع وقت به ایمیل ثبت‌شده شما فرستاده خواهد شد.',
     },
     footer: {
-      brandName: 'Sana Studio | استودیو سنا',
-      brandTagline: 'ایده‌ها را به محصول تبدیل می‌کنیم.',
-      quickLinksTitle: 'بخش‌های سایت',
-      productsTitle: 'محصولات',
-      privacyNote: 'توسعه‌یافته با تمرکز بر سادگی، تجربه کاربری مستقل و معماری داده‌های محلی.',
-      copyright: 'تمامی حقوق برای برند Sana Studio محفوظ است.',
-      allRightsReserved: 'طراحی تک‌صفحه‌ای اختصاصی با پالت رنگی Midnight & Electric Blue.',
-      languageLabel: 'زبان نمایش:',
+      tagline: 'سیستم جامع مدیریت زندگی، مطالعه و بهره‌وری فردی برای اندروید.',
+      navTitle: 'بخش‌های اصلی',
+      featuresTitle: 'امکانات برجسته',
+      legalTitle: 'حریم خصوصی و شرایط',
+      privacy: 'سیاست حفظ حریم خصوصی',
+      terms: 'شرایط و ضوابط استفاده',
+      copyright: 'تمامی حقوق مادی و معنوی برای اپلیکیشن Emerald Life محفوظ است.',
+      reserved: 'طراحی اختصاصی با هویت بصری Emerald Green و فونت اصیل وزیرمتن.',
+      designedBy: 'توسعه‌یافته توسط Sana Studio',
+    },
+    privacyModal: {
+      title: 'سیاست حفظ حریم خصوصی (Privacy Policy)',
+      lastUpdated: 'آخرین به‌روزرسانی: آبان ۱۴۰۵',
+      sections: [
+        {
+          heading: '۱. اصل بنیادین: ذخیره‌سازی محلی داده‌ها (Local-First)',
+          body: 'اپلیکیشن Emerald Life بر پایه حفظ استقلال کاربر طراحی شده است. تمام وظایف، عادات، ساعات مطالعه و برنامه‌های شما در دیتابیس محلی دستگاه اندرویدی‌تان ذخیره شده و هیچ نسخه‌ای از آن در سرورهای ابری ذخیره نمی‌شود.',
+        },
+        {
+          heading: '۲. اطلاعات فرم تماس وب‌سایت',
+          body: 'هنگامی که از طریق فرم تماس این وب‌سایت پیامی ارسال می‌کنید، صرفاً نام، ایمیل، موضوع و متن پیام شما جهت پاسخگویی به ایمیل رسمی توسعه‌دهنده ارسال می‌شود و در پایگاه‌های بازاریابی شخص ثالث ذخیره نمی‌گردد.',
+        },
+        {
+          heading: '۳. احراز هویت با گوگل (Google Sign-In)',
+          body: 'در صورت استفاده از ورود با گوگل، تنها اطلاعات عمومی نمایه شما (نام، ایمیل و تصویر) جهت شناسایی کاربری دریافت می‌شود. این وب‌سایت هیچ‌گونه دسترسی به ایمیل‌ها، پیام‌ها یا اطلاعات خصوصی جیمیل شما ندارد.',
+        },
+        {
+          heading: '۴. دسترسی‌های اپلیکیشن در اندروید',
+          body: 'اپلیکیشن Emerald Life تنها نیازمند مجوز ارسال اعلان‌های بومی (Notifications) جهت یادآوری تسک‌ها و هشدار تایمر است و دسترسی به دوربین، میکروفون، موقعیت مکانی یا مخاطبین درخواست نمی‌کند.',
+        },
+      ],
+    },
+    termsModal: {
+      title: 'شرایط و ضوابط استفاده (Terms of Service)',
+      lastUpdated: 'آخرین به‌روزرسانی: آبان ۱۴۰۵',
+      sections: [
+        {
+          heading: '۱. پذیرش شرایط',
+          body: 'استفاده از وب‌سایت و اپلیکیشن Emerald Life به منزله پذیرش کامل این ضوابط و تعهد به بهره‌برداری قانونی و شخصی از امکانات برنامه است.',
+        },
+        {
+          heading: '۲. مالکیت معنوی و حق نشر',
+          body: 'نام تجاری Emerald Life، نشان‌های گرافیکی، کدهای برنامه و طراحی‌های موجود متعلق به توسعه‌دهنده بوده و هرگونه بازنشر بدون مجوز یا دستکاری در بسته نصبی ممنوع است.',
+        },
+        {
+          heading: '۳. توزیع و دریافت نرم‌افزار',
+          body: 'توصیه اکید می‌شود فایل نصب APK را تنها از طریق این وب‌سایت رسمی یا مارکت‌های معتبر دریافت کنید تا از اصالت و امنیت بسته نصبی اطمینان حاصل شود.',
+        },
+        {
+          heading: '۴. سلب مسئولیت ادعاهای غیرواقعی',
+          body: 'این نرم‌افزار یک ابزار کمکی برای مدیریت زمان و سازماندهی است و هیچ ادعای قطعی درمانی یا پزشکی برای اختلالات تمرکز ارائه نمی‌دهد.',
+        },
+      ],
     },
   },
   en: {
     nav: {
       home: 'Home',
-      about: 'About Studio',
-      products: 'Products',
-      principles: 'Principles',
-      roadmap: 'Roadmap',
+      features: 'Features',
+      howItWorks: 'How It Works',
+      preview: 'App Preview',
+      benefits: 'Benefits',
       faq: 'FAQ',
       contact: 'Contact',
-      themeToggle: 'Toggle Light / Dark Mode',
+      downloadApp: 'Download App',
+      account: 'Account',
+      signOut: 'Sign Out',
+      themeToggle: 'Toggle Theme (Light / Dark)',
       langToggle: 'فارسی',
-      menuOpen: 'Open Navigation Menu',
-      menuClose: 'Close Navigation Menu',
+      menuOpen: 'Open menu',
+      menuClose: 'Close menu',
     },
     hero: {
-      badge: 'Software Design & Engineering Studio',
-      title: 'Transforming Ideas into Digital Products.',
+      badge: 'Comprehensive Life & Study Management for Android',
+      title: 'Take Control of Your Life.',
+      titleHighlight: 'Make Every Day Count.',
       subtitle:
-        'Sana Studio is a dedicated space for crafting digital tools focused on simplicity, usability, and thoughtful user experiences.',
-      ctaProducts: 'View Product',
-      ctaAbout: 'About the Studio',
-      statLocalFirst: 'Local-First',
-      statLocalFirstSub: 'On-device SQLite database with zero cloud tethering',
-      statScalable: 'Sustainable Design',
-      statScalableSub: 'Modular architecture ready for growth',
-      statPrivacy: 'User Privacy',
-      statPrivacySub: 'Zero commercial trackers and zero ads',
+        'Emerald Life is an elegant, local-first Android application designed to help you organize daily tasks, build lasting habits, schedule study sessions, and monitor productivity with crystal-clear analytics.',
+      downloadBtn: 'Download for Android',
+      exploreBtn: 'Explore Features',
+      platformNotice: 'Developed exclusively for Android • 100% Local-First & Cloud-Free',
+      stats: {
+        tasksLabel: 'Task Priority',
+        tasksSub: 'Dynamic hierarchy & tracking',
+        habitsLabel: 'Habit Streaks',
+        habitsSub: 'Consistency & daily routines',
+        studyLabel: 'Study Focus',
+        studySub: 'Integrated timer & session logs',
+      },
     },
-    about: {
-      badge: 'About Us',
-      title: 'What is Sana Studio and What Drives Us?',
-      lead: 'An independent digital studio crafting purposeful software tools without bloat, anchored in honest utility.',
-      p1: 'Sana Studio was founded on a simple truth: everyday software should be nimble, quiet, and straightforward. While contemporary applications increasingly lean into intrusive notifications and data collection, we build utilities that foster tranquility and productive focus.',
-      p2: 'Our core focus centers on local-first digital utilities; all primary data remains stored securely on your hardware and functions seamlessly without internet connectivity.',
-      p3: 'We prioritize craftsmanship and clean execution over sheer volume, engineering each tool around genuine real-world needs without exaggerated claims.',
-      pillarsTitle: 'Our Foundational Design Pillars',
-      pillars: [
-        {
-          title: 'Simplicity in Experience',
-          desc: 'Omitting superfluous buttons and clutter; interfaces that feel immediately intuitive.',
-        },
-        {
-          title: 'Genuine Usability',
-          desc: 'Designed for daily routines under real-world constraints, without unnecessary friction.',
-        },
-        {
-          title: 'Resilient Offline Architecture',
-          desc: 'Rock-solid offline durability and client-side database independence on your device.',
-        },
-      ],
-    },
-    products: {
-      badge: 'Studio Products',
-      title: 'Products by Sana Studio',
-      subtitle: 'Emerald Life is an Android app for life and study management.',
-      statusInDev: 'In Development for Android',
-      statusReleased: 'Released',
-      viewDetails: 'View Full Specifications',
-      closeDetails: 'Close Panel',
-      targetPlatforms: 'Supported Platform:',
-      verifiedFeaturesTitle: 'Verified Android Capabilities:',
-      useCasesTitle: 'Intended Use Cases:',
-      techHighlightsTitle: 'Tech Highlights:',
-      downloadTitle: 'Android Release & Download Status:',
-      downloadNotAvailableNote:
-        'This Android application is currently in active development and internal testing. Official Android release builds will be made accessible through verified channels upon completing quality milestones.',
-      featuredBadge: 'Dedicated Android Application',
-    },
-    featured: {
-      badge: 'Official Project in Active Development',
-      title: 'Emerald Life',
-      subtitle: 'Android academic & habit planner built on Flutter and local SQLite',
-      description:
-        'Emerald Life is an Android app for life and study management created under Sana Studio. Designed for students and learners, it brings together academic task management, weekly timetables, habit streak tracking, and an ambient Pomodoro focus timer into an offline Android environment.',
-      specsTitle: 'Core Capabilities Verified in Source Code:',
-      architectureTitle: '100% Local-First Architecture:',
-      architectureDesc:
-        'All schedules, habits, notes, and study analytics reside exclusively within your Android device’s SQLite database. No mandatory cloud accounts, no third-party data tracking, and uninterrupted offline access.',
-      ctaDetails: 'View Emerald Life Specs',
-    },
-    principles: {
-      badge: 'Guiding Values',
-      title: 'Core Commitments in Every Sana Product',
+    features: {
+      badge: 'Genuine Capabilities',
+      title: 'A Complete System, Zero Clutter',
       subtitle:
-        'The non-negotiable principles that shape our conceptualization, UI/UX design, and codebase architecture.',
+        'Every Emerald Life module is built around local data security and genuine learning and productivity workflows.',
       items: [
         {
-          title: 'Simplicity in Use',
-          desc: 'Well-crafted tools require no cumbersome manuals. The pathway to task completion should be clear and minimal.',
+          id: 'tasks',
+          title: 'Task Management',
+          desc: 'Create, organize, and prioritize daily tasks with clear deadlines and completion tracking to maintain structured momentum.',
+          tag: 'Organization',
+          bullets: [
+            'Create tasks with contextual notes and details',
+            'Configurable priority levels: High, Medium, Low',
+            'Smart filtering by completion status and due date',
+            'Smooth daily progress checkoffs',
+          ],
         },
         {
-          title: 'User-Centric Architecture',
-          desc: 'User intent always takes precedence over aggressive retention tricks or algorithmic engagement traps.',
+          id: 'habits',
+          title: 'Habit Management',
+          desc: 'Build positive routines, track daily completion consistency, and turn small actions into lasting habits.',
+          tag: 'Personal Growth',
+          bullets: [
+            'Track daily, weekly, and interval habits',
+            'Live streak calculations & consistency monitoring',
+            'Single-tap daily habit completion checkoff',
+            'Long-term consistency trend visibility',
+          ],
         },
         {
-          title: 'Commitment to Quality',
-          desc: 'Lean execution, minimal battery consumption, low memory footprint, and swift load times.',
+          id: 'schedule',
+          title: 'Schedule & Programs',
+          desc: 'Organize your daily schedule, track upcoming milestones, and prevent conflicts between study and personal life.',
+          tag: 'Time Management',
+          bullets: [
+            'Dual Solar Hijri (Jalali) and Gregorian calendar support',
+            'Clean daily timeline overview at a glance',
+            'Avoid scheduling overlaps between classes and tasks',
+            'Plan exams, routines, and important events cleanly',
+          ],
         },
         {
-          title: 'Continuous Evolution',
-          desc: 'Direct responsiveness to user feedback and iterative refinement based on actual usage patterns.',
+          id: 'study',
+          title: 'Study Sessions & Timer',
+          desc: 'Dedicated study companion featuring focus timers, subject categorization, and detailed session logging.',
+          tag: 'Student Focus',
+          bullets: [
+            'Precision focus timer with customizable break intervals',
+            'Categorize sessions by subject, textbook, and topics',
+            'Comprehensive historical log of all study sessions',
+            'Audible chime notifications on interval completion',
+          ],
         },
         {
-          title: 'User Privacy First',
-          desc: 'Your data is strictly yours. We design with a local-first philosophy and reject unnecessary telemetry.',
+          id: 'analytics',
+          title: 'Analytics & Statistics',
+          desc: 'Visualize your daily, weekly, monthly, and 6-month productivity trends to understand your study habits and output.',
+          tag: 'Data Insights',
+          bullets: [
+            'Daily and weekly completion percentages',
+            'Comparative weekly study hours bar charts',
+            '6-month long-term progression analysis',
+            '100% locally calculated without remote dependencies',
+          ],
+        },
+        {
+          id: 'notifications',
+          title: 'Intelligent Reminders',
+          desc: 'Native Android notifications alerting you to task deadlines, habit check-ins, and study session intervals.',
+          tag: 'Timely Alerts',
+          bullets: [
+            'Battery-efficient local notification dispatch',
+            'Alerts on session completion and rest cycles',
+            'Customizable sound and alert schedules',
+            'Zero server downtime: runs completely locally',
+          ],
+        },
+        {
+          id: 'personalization',
+          title: 'Personalization & Themes',
+          desc: 'Comfortable light and dark themes, pure OLED black mode, customizable accent colors, and dual-language preferences.',
+          tag: 'Tailored UX',
+          bullets: [
+            'Support for Light, Dark, and Ultra Dark (OLED)',
+            'Over 30 vibrant accent color palettes',
+            'Instant toggle between Jalali and Gregorian calendars',
+            'Full bilingual Persian and English support',
+          ],
         },
       ],
     },
-    vision: {
-      badge: 'Roadmap & Horizon',
-      title: 'Development Path for Sana Studio',
-      subtitle: 'A steady commitment to quality, step-by-step progress, and privacy-first digital tools',
-      description:
-        'Our philosophy is anchored in crafting thoughtful, local-first software. Our journey begins with finalizing Emerald Life and laying the groundwork for future focused tools.',
-      points: [
+    howItWorks: {
+      badge: 'Simple Setup',
+      title: 'How Emerald Life Powers Your Day',
+      subtitle: 'Five practical steps to take charge of your tasks, habits, and academic milestones.',
+      steps: [
         {
-          title: 'Stable Release of Emerald Life on Android',
-          desc: 'Performance optimizations, multi-device Android validation, and preparing for official market rollout.',
+          step: '01',
+          title: 'Set Up Your Workspace',
+          desc: 'Select your preferred language, calendar format, and visual theme upon launching.',
         },
         {
-          title: 'Engineering Privacy-First Digital Tools',
-          desc: 'Researching and developing new utilities rooted in local-first architecture and zero cloud tethering.',
+          step: '02',
+          title: 'Organize Tasks & Schedules',
+          desc: 'Add your study assignments and daily responsibilities with custom priorities and dates.',
         },
         {
-          title: 'Refining Offline User Experience',
-          desc: 'Continuous performance tuning, lightweight footprints, and tranquil, distraction-free workspaces.',
+          step: '03',
+          title: 'Build & Track Daily Habits',
+          desc: 'Set up habits you want to cultivate and check them off daily to build unbreakable streaks.',
+        },
+        {
+          step: '04',
+          title: 'Run Focused Study Sessions',
+          desc: 'Launch the focus timer, choose your topic, and log exact study hours with built-in breaks.',
+        },
+        {
+          step: '05',
+          title: 'Review Insights & Optimize',
+          desc: 'Inspect weekly and 6-month analytics to discover your peak productive hours and adjust routines.',
+        },
+      ],
+    },
+    preview: {
+      badge: 'Visual Experience',
+      title: 'Explore the Emerald Life Interface',
+      subtitle: 'A clean, high-contrast mobile interface crafted specifically for focused productivity on Android.',
+      tabs: [
+        {
+          id: 'home',
+          label: 'Home Dashboard',
+          title: 'Home Overview Screen',
+          desc: 'Instant view of today’s tasks, upcoming habits, study hour metrics, and personalized daily greeting.',
+          metrics: [
+            { label: 'Daily Status', value: 'Live Digest' },
+            { label: 'Calendar', value: 'Jalali/Gregorian' },
+            { label: 'Quick Focus', value: 'Single Tap' },
+          ],
+        },
+        {
+          id: 'tasks',
+          label: 'Task Manager',
+          title: 'Interactive Task Management',
+          desc: 'Filter easily between pending and completed tasks with color-coded priority flags and deadlines.',
+          metrics: [
+            { label: 'Priorities', value: 'High/Med/Low' },
+            { label: 'Task Notes', value: 'Detailed' },
+            { label: 'Ordering', value: 'Chronological' },
+          ],
+        },
+        {
+          id: 'habits',
+          label: 'Habit Tracker',
+          title: 'Habit Consistency & Streaks',
+          desc: 'Visual consistency chain with streak counters and satisfaction haptics on daily completion.',
+          metrics: [
+            { label: 'Streak Tracker', value: 'Active Counter' },
+            { label: 'Ease of Use', value: '1-Tap Log' },
+            { label: 'Retention', value: '30-Day View' },
+          ],
+        },
+        {
+          id: 'schedule',
+          label: 'Schedule & Calendar',
+          title: 'Event & Program Planner',
+          desc: 'Organize your classes, study hours, and milestones without clutter or overlapping commitments.',
+          metrics: [
+            { label: 'Timeline', value: 'Hourly Flow' },
+            { label: 'Overlap Check', value: 'Zero Conflict' },
+            { label: 'Reminders', value: 'Native Alert' },
+          ],
+        },
+        {
+          id: 'study',
+          label: 'Study Focus Timer',
+          title: 'Focused Study Companion',
+          desc: 'Dedicated session timer tracking effective study time, breaks, and subject-specific history.',
+          metrics: [
+            { label: 'Focus Clock', value: 'Interval Based' },
+            { label: 'Subjects', value: 'Categorized' },
+            { label: 'Completion', value: 'Audio Chime' },
+          ],
+        },
+        {
+          id: 'analytics',
+          label: 'Analytics & Insights',
+          title: 'Long-Term Performance Metrics',
+          desc: 'Detailed bar charts, task completion ratios, and 6-month progress trajectories.',
+          metrics: [
+            { label: 'Time Horizon', value: '6 Months' },
+            { label: 'Chart Types', value: 'Weekly/Monthly' },
+            { label: 'Processing', value: '100% Offline' },
+          ],
+        },
+        {
+          id: 'settings',
+          label: 'Customization',
+          title: 'Themes & Preferences',
+          desc: 'Switch between Light, Dark, and OLED Ultra Dark, adjust notification sounds, and choose from 30 colors.',
+          metrics: [
+            { label: 'Dark Mode', value: 'OLED Black' },
+            { label: 'Palettes', value: '30 Options' },
+            { label: 'Languages', value: 'EN / FA' },
+          ],
+        },
+      ],
+    },
+    benefits: {
+      badge: 'Core Value',
+      title: 'Why Students & Creators Rely on Emerald Life',
+      subtitle: 'Uncompromising privacy, zero clutter, and all your productivity essentials in one unified app.',
+      items: [
+        {
+          title: 'All-In-One Unified Ecosystem',
+          desc: 'Stop juggling four separate apps for tasks, habit tracking, focus timers, and schedules. Everything is seamlessly integrated.',
+        },
+        {
+          title: '100% Local-First Privacy',
+          desc: 'Your study notes, personal habits, and daily plans stay solely on your Android device in a secure SQLite database.',
+        },
+        {
+          title: 'Structured, Result-Driven Learning',
+          desc: 'Keep track of real study hours and study topics to eliminate procrastination and boost academic retention.',
+        },
+        {
+          title: 'Honest, Objective Productivity Data',
+          desc: 'Understand your true weekly progress with transparent analytics rather than subjective feelings.',
+        },
+        {
+          title: 'Deep Ergonomic Personalization',
+          desc: 'Choose from 30+ accent colors and True OLED Dark Mode to customize an interface that inspires focus without eye strain.',
+        },
+        {
+          title: 'Uninterrupted Offline Independence',
+          desc: 'No login walls, no mandatory internet connections, and no cloud outages. Emerald Life works anytime, anywhere.',
         },
       ],
     },
     faq: {
-      badge: 'FAQ',
+      badge: 'Transparent Answers',
       title: 'Frequently Asked Questions',
-      subtitle: 'Transparent insights into our studio philosophy, app roadmap, and distribution policies',
+      subtitle: 'Clear, honest information regarding platforms, functionality, and downloading Emerald Life.',
       items: [
         {
-          q: 'What is Sana Studio?',
-          a: 'Sana Studio is an independent software brand focused on creating clean, local-first digital utilities designed to empower students and professionals in their learning and daily routines.',
+          q: 'What exactly is Emerald Life?',
+          a: 'Emerald Life is an all-in-one life and study management app for Android combining task organization, habit tracking, daily scheduling, study timers, and performance analytics into a clean, unified experience.',
         },
         {
-          q: 'Which operating system is the application built for, and where can it be downloaded?',
-          a: 'Emerald Life is developed exclusively for Android. Official Android releases will be published via verified distribution channels such as Cafe Bazaar and the studio’s official website upon reaching stable status. No desktop or non-Android versions exist.',
+          q: 'Which operating systems does Emerald Life support?',
+          a: 'Emerald Life is developed exclusively for Android. There are no iOS, desktop, or web editions, allowing us to deliver a deeply optimized Android experience.',
         },
         {
-          q: 'Are the applications free of charge?',
-          a: 'Core offline functionality is built to be accessible without paywalls or compulsory subscription barriers. User privacy and feature independence remain paramount.',
+          q: 'How can I download and install the application?',
+          a: 'You can download the verified release APK directly from the download section on this website. Stable releases will also be published to official Android distribution channels.',
         },
         {
-          q: 'How can I contact the studio with feedback?',
-          a: 'You can reach out through the contact form on this page or send an email directly to sanaheydari245@gmail.com.',
+          q: 'Does Emerald Life require an internet connection or account?',
+          a: 'No. The app is local-first. All your data stays privately stored on your phone’s internal storage, operating fully offline without compulsory account logins.',
         },
         {
-          q: 'Will additional products be added in the future?',
-          a: 'Yes. As Emerald Life reaches its stable release milestones, new utilities matching our studio standards will be introduced over time.',
+          q: 'Are both Jalali and Gregorian calendars supported?',
+          a: 'Yes. Emerald Life features comprehensive native support for both Persian Solar Hijri (Jalali) and Gregorian calendars, complete with dual Persian and English language support.',
+        },
+        {
+          q: 'Can I customize study timer intervals and notifications?',
+          a: 'Yes. Focus durations, short/long rest breaks, reminder times, and audible chime alerts can be fully configured in app settings.',
+        },
+        {
+          q: 'Is dark mode supported?',
+          a: 'Yes. Emerald Life offers both a refined standard Dark Mode and an Ultra Dark (True Black) mode optimized for battery conservation on OLED screens.',
+        },
+        {
+          q: 'Does the application send my personal data to external servers?',
+          a: 'No. User privacy is a non-negotiable principle. Your personal tasks, routines, and study records are stored in your device’s local SQLite database.',
         },
       ],
     },
+    download: {
+      badge: 'Official Release',
+      title: 'Experience Emerald Life on Android',
+      subtitle: 'Download the verified APK release to elevate your daily routines and study habits today.',
+      apkBtn: 'Download APK Release',
+      versionInfo: 'Official Version: 1.0.0 (Stable)',
+      sizeInfo: 'File Size: ~67 MB',
+      instructionsTitle: 'Quick Installation Steps for Android:',
+      instructions: [
+        'Tap the download button to save emerald-life.apk to your device.',
+        'Once downloaded, tap the notification or open the file from your Downloads folder.',
+        'If prompted by Android, temporarily grant permission to install from your browser.',
+        'Tap Install and launch Emerald Life to begin organizing your day.',
+      ],
+      notice: 'Requires Android 7.0 (Nougat) or higher • Verified & Clean',
+    },
+    authModal: {
+      title: 'Account Authentication',
+      subtitle: 'Connect with your Google account for feedback, updates, and community support.',
+      googleBtn: 'Continue with Google',
+      privacyNote: 'Authentication is securely processed via Google OAuth 2.0. We never access your Gmail password or private inbox.',
+      close: 'Close Window',
+      userGreeting: 'Welcome',
+      userEmail: 'Account Email:',
+      statusActive: 'Active Account',
+    },
     contact: {
-      badge: 'Direct Contact',
-      title: 'Connect with Sana Studio',
-      subtitle: 'We welcome honest feedback, questions, and thoughtful suggestions from our community.',
+      badge: 'Direct Support',
+      title: 'Connect with the Development Team',
+      subtitle: 'Share your feedback, bug reports, feature ideas, or questions regarding Emerald Life.',
       nameLabel: 'Full Name',
       namePlaceholder: 'e.g. Alex Morgan',
       emailLabel: 'Email Address',
       emailPlaceholder: 'name@example.com',
       subjectLabel: 'Subject',
-      subjectPlaceholder: 'Regarding app development, collaboration, or feedback...',
+      subjectPlaceholder: 'Feature request, feedback, or inquiry...',
       messageLabel: 'Your Message',
-      messagePlaceholder: 'Please share your thoughts, questions, or ideas...',
-      submitBtn: 'Send Message',
+      messagePlaceholder: 'Please share your thoughts, ideas, or feedback...',
+      submitBtn: 'Send Message Securely',
       submittingBtn: 'Sending Message...',
       validationErrors: {
         nameRequired: 'Please enter your name.',
@@ -546,30 +981,75 @@ export const translations: Record<Language, TranslationSchema> = {
         messageMax: 'Message must not exceed 3000 characters.',
       },
       successTitle: 'Message Sent Successfully',
-      successMessage: 'Thank you for reaching out. Your message has been safely delivered to sanaheydari245@gmail.com and we will reply to your email shortly.',
+      successMessage: 'Thank you for reaching out. Your message has been safely delivered to the development team.',
       errorTitle: 'Failed to Send Message',
-      errorMessage: 'The message could not be delivered. Please try again or reach out directly using the official email address.',
+      errorMessage: 'The message could not be delivered. Please try again or reach out directly using the official email.',
       rateLimitWarning: 'Please wait 60 seconds before sending another message.',
-      unconfiguredNotice: 'EmailJS keys are not yet configured in environment variables (.env).',
-      unconfiguredSetupHint: 'You can use the direct email button below or follow EMAILJS_SETUP_GUIDE.md to activate instant web delivery.',
+      unconfiguredNotice: 'Contact service is not configured.',
+      unconfiguredSetupHint: 'Please use the direct email button below to send your message directly.',
       fallbackMailBtn: 'Send via Direct Email',
       sendAnotherBtn: 'Send Another Message',
       tryAgainBtn: 'Try Again',
       clientActionNotice:
-        'Secure direct dispatch: Your message is encrypted via SSL and delivered through EmailJS straight to the studio inbox with zero third-party database retention.',
-      directEmailLabel: 'Official Studio Email:',
+        'Secure direct dispatch: Your message is encrypted via SSL and delivered through our dedicated Node.js backend straight to the developer inbox.',
+      directEmailLabel: 'Official Contact Email:',
       directEmailValue: 'sanaheydari245@gmail.com',
       statusNote: 'Responses will be sent to your provided email address in a timely manner.',
     },
     footer: {
-      brandName: 'Sana Studio',
-      brandTagline: 'Transforming ideas into digital products.',
-      quickLinksTitle: 'Quick Links',
-      productsTitle: 'Products',
-      privacyNote: 'Engineered with a strong emphasis on privacy, local-first databases, and clean digital ergonomics.',
-      copyright: 'All rights reserved for Sana Studio.',
-      allRightsReserved: 'Single-page responsive design built with the Midnight Blue & Electric Blue palette.',
-      languageLabel: 'Language:',
+      tagline: 'Comprehensive Life & Study Management Application for Android.',
+      navTitle: 'Navigation',
+      featuresTitle: 'Core Modules',
+      legalTitle: 'Legal & Privacy',
+      privacy: 'Privacy Policy',
+      terms: 'Terms of Service',
+      copyright: 'All rights reserved for Emerald Life.',
+      reserved: 'Crafted with Emerald Green visual identity and authentic Vazirmatn typography.',
+      designedBy: 'Developed by Sana Studio',
+    },
+    privacyModal: {
+      title: 'Privacy Policy',
+      lastUpdated: 'Last Updated: November 2026',
+      sections: [
+        {
+          heading: '1. Core Principle: 100% Local-First Storage',
+          body: 'Emerald Life is built with user sovereignty at its core. All your tasks, habits, study sessions, and schedules are stored solely inside your Android device’s local SQLite database without cloud sync or remote harvesting.',
+        },
+        {
+          heading: '2. Website Contact Form Data',
+          body: 'When you submit a message through this website’s contact form, your name, email, subject, and message are transmitted directly to the developer’s inbox to respond to your inquiry and are never shared with marketing brokers.',
+        },
+        {
+          heading: '3. Google Sign-In Authentication',
+          body: 'If you choose to sign in with Google on this website, only your basic public profile information (name, email, and avatar) is retrieved for session identification. We never access your private Gmail messages or inbox data.',
+        },
+        {
+          heading: '4. Android Device Permissions',
+          body: 'The Emerald Life Android app requests only standard local notification permissions to alert you of task deadlines and focus intervals. It does not require access to your camera, microphone, contacts, or location.',
+        },
+      ],
+    },
+    termsModal: {
+      title: 'Terms of Service',
+      lastUpdated: 'Last Updated: November 2026',
+      sections: [
+        {
+          heading: '1. Acceptance of Terms',
+          body: 'By downloading or using Emerald Life and this website, you agree to these terms of service and commit to lawful, personal use of the software.',
+        },
+        {
+          heading: '2. Intellectual Property',
+          body: 'The Emerald Life brand, graphics, logos, source code, and design assets are the exclusive property of the developer and are protected by applicable copyright laws.',
+        },
+        {
+          heading: '3. Software Distribution',
+          body: 'We advise users to download the official APK directly from this official website or verified distribution stores to ensure integrity and security.',
+        },
+        {
+          heading: '4. Disclaimer',
+          body: 'Emerald Life is an organization and time-management utility provided as-is, without medical or psychological treatment claims.',
+        },
+      ],
     },
   },
 };

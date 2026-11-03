@@ -27,34 +27,36 @@ select {
 
 @theme {
   --font-sans: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --color-brand-primary: #3563F5;
-  --color-brand-primary-hover: #2650DE;
-  --color-brand-midnight: #101B3D;
-  --color-brand-light-blue: #A9B8D4;
-  --color-brand-surface-light: #DCE5FF;
+
+  /* Emerald Life - Premium Emerald Color Palette */
+  --color-emerald-primary: #059669;        /* Vibrant Emerald */
+  --color-emerald-primary-hover: #047857;  /* Deep Emerald Hover */
+  --color-emerald-accent: #10B981;         /* Bright Emerald Accent */
+  --color-emerald-mint: #D1FAE5;           /* Soft Mint Surface Light */
+  --color-emerald-mint-border: #A7F3D0;
   
   /* Canvas Backgrounds */
-  --color-sana-light: #F5F7FF;
-  --color-sana-dark: #182541;           /* Main page dark bg */
-  --color-sana-section-dark: #202F50;   /* Section dark bg */
+  --color-canvas-light: #F8FAFC;           /* Clean Soft Gray/White */
+  --color-canvas-dark: #0B1310;            /* Deep Charcoal / Dark Forest Green */
+  --color-section-dark: #111D18;          /* Section Dark Surface */
   
   /* Card & Surface Elevation */
-  --color-sana-card-light: #FFFFFF;
-  --color-sana-card-dark: #2A3B60;      /* Card dark bg */
-  --color-sana-card-dark-hover: #31446E;
-  --color-sana-panel-dark: #35496F;     /* Elevated panel / chip dark bg */
+  --color-card-light: #FFFFFF;
+  --color-card-dark: #16241E;             /* Card Dark Background */
+  --color-card-dark-hover: #1D3028;
+  --color-panel-dark: #22382F;            /* Elevated Chip / Badge Dark Background */
   
   /* Borders */
-  --color-sana-border-light: rgba(53, 99, 245, 0.12);
-  --color-sana-border-dark: #52678D;    /* Border dark */
+  --color-border-light: rgba(5, 150, 105, 0.14);
+  --color-border-dark: rgba(16, 185, 129, 0.22);
   
   /* Text */
-  --color-sana-text-primary-light: #101B3D;
-  --color-sana-text-primary-dark: #F8FAFF;  /* Main text dark */
-  --color-sana-text-body-light: #3D4C6F;
-  --color-sana-text-body-dark: #D5DFF2;     /* Secondary text dark */
-  --color-sana-text-muted-light: #64748B;
-  --color-sana-text-muted-dark: #B7C7E4;    /* Auxiliary / muted text dark */
+  --color-text-primary-light: #0F172A;
+  --color-text-primary-dark: #F1F5F9;
+  --color-text-secondary-light: #334155;
+  --color-text-secondary-dark: #CBD5E1;
+  --color-text-muted-light: #64748B;
+  --color-text-muted-dark: #94A3B8;
 }
 
 @layer base {
@@ -68,8 +70,8 @@ select {
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     max-width: 100%;
-    background-color: #F5F7FF;
-    color: #101B3D;
+    background-color: #F8FAFC;
+    color: #0F172A;
     transition: background-color 0.25s ease, color 0.25s ease;
   }
 
@@ -81,8 +83,8 @@ select {
   }
 
   .dark body {
-    background-color: #182541;
-    color: #F8FAFF;
+    background-color: #0B1310;
+    color: #F1F5F9;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -102,7 +104,7 @@ select {
   }
 }
 
-/* Custom scrollbar with Electric Blue styling */
+/* Custom scrollbar with Emerald styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -110,11 +112,11 @@ select {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(53, 99, 245, 0.3);
+  background: rgba(16, 185, 129, 0.35);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(53, 99, 245, 0.55);
+  background: rgba(5, 150, 105, 0.6);
 }
 
 /* Unified Standard Responsive Container System */
@@ -122,47 +124,47 @@ select {
   width: 100%;
   max-width: 1240px;
   margin-inline: auto;
-  padding-inline: 1rem; /* 16px for mobile (360px+) */
+  padding-inline: 1rem;
 }
 
 @media (min-width: 640px) {
   .site-container {
-    padding-inline: 1.25rem; /* 20px for sm */
+    padding-inline: 1.25rem;
   }
 }
 
 @media (min-width: 768px) {
   .site-container {
-    padding-inline: 1.5rem; /* 24px for md / tablets */
+    padding-inline: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .site-container {
-    padding-inline: 2rem; /* 32px for lg / desktop */
+    padding-inline: 2rem;
   }
 }
 
-/* Glassmorphism with midnight & electric blue borders */
+/* Glassmorphism with Emerald borders */
 .glass-surface {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.90);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(53, 99, 245, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.16);
 }
 
 .dark .glass-surface {
-  background: rgba(24, 37, 65, 0.90);
+  background: rgba(17, 29, 24, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(82, 103, 141, 0.45);
+  border: 1px solid rgba(16, 185, 129, 0.22);
 }
 
 /* Glow effects restricted to hero & select accents */
-.glow-electric-blue {
-  background: radial-gradient(circle at 50% 40%, rgba(53, 99, 245, 0.14) 0%, rgba(53, 99, 245, 0) 65%);
+.glow-emerald {
+  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0) 70%);
 }
 
-.dark .glow-electric-blue {
-  background: radial-gradient(circle at 50% 40%, rgba(53, 99, 245, 0.22) 0%, rgba(24, 37, 65, 0) 70%);
+.dark .glow-emerald {
+  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.22) 0%, rgba(11, 19, 16, 0) 72%);
 }

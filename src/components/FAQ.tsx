@@ -27,65 +27,65 @@ export const FAQ: React.FC<FAQProps> = ({ lang }) => {
   const ArrowIcon = lang === 'fa' ? ArrowLeft : ArrowRight;
 
   return (
-    <section id="faq" className="py-10 md:py-12 relative">
+    <section id="faq" className="py-16 md:py-20 relative">
       <div className="site-container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* Header & Quick Assistance Column */}
           <div className="lg:col-span-5 text-start">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#DCE5FF] dark:bg-[#35496F] text-[#3563F5] dark:text-[#D5DFF2] border border-[#3563F5]/20 dark:border-[#52678D] mb-2.5">
-              <HelpCircle className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 mb-3">
+              <HelpCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>{t.badge}</span>
             </div>
-            <h2 className="text-2xl sm:text-[28px] md:text-[30px] font-bold text-[#101B3D] dark:text-[#F8FAFF] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t.title}
             </h2>
-            <p className="text-sm sm:text-base text-[#3D4C6F] dark:text-[#D5DFF2] mt-2 mb-5 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-3 mb-6 leading-relaxed">
               {t.subtitle}
             </p>
 
             {/* Quick Contact Prompt Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#2A3B60] border border-[#3563F5]/15 dark:border-[#52678D] shadow-sm">
-              <div className="flex items-center gap-2 mb-2 text-[#3563F5] dark:text-[#A9B8D4]">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#16241E] border border-emerald-500/15 dark:border-emerald-500/25 shadow-sm">
+              <div className="flex items-center gap-2 mb-2 text-emerald-600 dark:text-emerald-400">
                 <MessageSquare className="w-4 h-4" />
-                <span className="text-sm font-bold text-[#101B3D] dark:text-[#F8FAFF]">
+                <span className="text-sm font-bold text-slate-900 dark:text-white">
                   {lang === 'fa' ? 'سؤال دیگری در ذهن دارید؟' : 'Have a different question?'}
                 </span>
               </div>
-              <p className="text-xs sm:text-[13px] text-[#5D6D93] dark:text-[#D5DFF2] leading-relaxed mb-3.5">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
                 {lang === 'fa'
-                  ? 'اگر پاسخ پرسش خود را اینجا پیدا نکردید، از طریق فرم تماس یا ایمیل مستقیم با ما در میان بگذارید.'
-                  : "If your question isn't answered here, feel free to reach out via our contact form or direct email."}
+                  ? 'اگر پاسخ پرسش خود را اینجا نیافتید، با کمال میل از طریق فرم تماس اختصاصی با ما در ارتباط باشید.'
+                  : "If your question isn't answered here, feel free to reach out via our contact form."}
               </p>
               <button
                 onClick={scrollToContact}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#3563F5] dark:text-[#A9B8D4] hover:underline focus:outline-none"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 focus:outline-none group"
               >
-                <span>{lang === 'fa' ? 'ارسال پیام به استودیو' : 'Send message to studio'}</span>
-                <ArrowIcon className="w-3.5 h-3.5" />
+                <span>{lang === 'fa' ? 'ارسال پیام به تیم توسعه' : 'Send message to team'}</span>
+                <ArrowIcon className="w-4 h-4 transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
               </button>
             </div>
           </div>
 
           {/* Accordion List Column */}
-          <div className="lg:col-span-7 space-y-2.5">
+          <div className="lg:col-span-7 space-y-3">
             {t.items.map((item, idx) => {
               const isOpen = openIndex === idx;
 
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl bg-white dark:bg-[#2A3B60] border border-[#3563F5]/10 dark:border-[#52678D]/50 overflow-hidden transition-all duration-200 shadow-sm"
+                  className="rounded-2xl bg-white dark:bg-[#16241E] border border-emerald-500/10 dark:border-emerald-500/20 overflow-hidden transition-all duration-200 shadow-sm"
                 >
                   <button
                     onClick={() => toggle(idx)}
-                    className="w-full flex items-center justify-between p-3.5 sm:p-4 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3563F5]"
+                    className="w-full flex items-center justify-between p-4 sm:p-5 text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                     aria-expanded={isOpen}
                   >
-                    <span className="text-xs sm:text-sm font-semibold text-[#101B3D] dark:text-[#F8FAFF] pe-3">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white pe-3">
                       {item.q}
                     </span>
                     <div
-                      className={`w-7 h-7 rounded-lg bg-[#F5F7FF] dark:bg-[#35496F] text-[#3563F5] dark:text-[#D5DFF2] flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${
+                      className={`w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''
                       }`}
                     >
@@ -94,7 +94,7 @@ export const FAQ: React.FC<FAQProps> = ({ lang }) => {
                   </button>
 
                   {isOpen && (
-                    <div className="px-4 pb-4 pt-1 text-xs sm:text-sm text-[#3D4C6F] dark:text-[#D5DFF2] leading-relaxed border-t border-[#3563F5]/10 dark:border-[#52678D]/30 animate-fade-in text-start">
+                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-emerald-500/10 dark:border-emerald-500/20 animate-fade-in text-start">
                       {item.a}
                     </div>
                   )}

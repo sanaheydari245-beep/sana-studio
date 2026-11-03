@@ -17,6 +17,11 @@ dist-ssr
 **/dist/
 *.local
 
+# Large binary release files (keep APK outside git repo tracking if desired, or track as needed)
+# emerald-life.apk (70MB exceeds standard GitHub 50MB recommendation)
+public/*.apk
+*.apk
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

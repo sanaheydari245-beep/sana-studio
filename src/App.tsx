@@ -1,18 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import type { Language } from './data/translations';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { About } from './components/About';
-import { Products } from './components/Products';
-import { Principles } from './components/Principles';
-import { Vision } from './components/Vision';
+import { Features } from './components/Features';
+import { HowItWorks } from './components/HowItWorks';
+import { AppPreview } from './components/AppPreview';
+import { Benefits } from './components/Benefits';
+import { Download } from './components/Download';
 import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
+import { AuthModal } from './components/AuthModal';
+import { LegalModal } from './components/LegalModal';
 
 const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
   const navigate = useNavigate();
+  const [legalModalState, setLegalModalState] = useState<{
+    isOpen: boolean;
+    type: 'privacy' | 'terms';
+  }>({
+    isOpen: false,
+    type: 'privacy',
+  });
 
   useEffect(() => {
     const root = document.documentElement;
@@ -20,9 +30,9 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
     root.dir = lang === 'fa' ? 'rtl' : 'ltr';
 
     if (lang === 'fa') {
-      document.title = 'Sana Studio | استودیو سنا - توسعه نرم‌افزار و ابزارهای دیجیتال';
+      document.title = 'Emerald Life | مدیریت هوشمند زندگی و مطالعه در اندروید';
     } else {
-      document.title = 'Sana Studio | Transforming Ideas into Digital Products';
+      document.title = 'Emerald Life | Android Life & Study Management OS';
     }
   }, [lang]);
 
@@ -30,13 +40,25 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
     navigate(`/${newLang}`, { replace: false });
   };
 
+  const openPrivacyModal = () => {
+    setLegalModalState({ isOpen: true, type: 'privacy' });
+  };
+
+  const openTermsModal = () => {
+    setLegalModalState({ isOpen: true, type: 'terms' });
+  };
+
+  const closeLegalModal = () => {
+    setLegalModalState((prev) => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 bg-[#F5F7FF] dark:bg-[#182541] text-[#101B3D] dark:text-[#F8FAFF] ${
+      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 bg-[#F8FAFC] dark:bg-[#0B1310] text-slate-900 dark:text-slate-100 ${
         lang === 'fa' ? 'text-right' : 'text-left'
       }`}
     >
-      {/* Sticky Glassmorphism Navbar */}
+      {/* Sticky Glassmorphism Header */}
       <Navbar lang={lang} onLanguageChange={handleLanguageChange} />
 
       {/* Main Single Page Content */}
@@ -44,27 +66,46 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
         {/* Section 1: Hero */}
         <Hero lang={lang} />
 
-        {/* Section 2: Products Catalog */}
-        <Products lang={lang} />
+        {/* Section 2: Features */}
+        <Features lang={lang} />
 
-        {/* Section 3: Brand Intro & 3 Pillars */}
-        <About lang={lang} />
+        {/* Section 3: How It Works */}
+        <HowItWorks lang={lang} />
 
-        {/* Section 5: Brand Principles & Values */}
-        <Principles lang={lang} />
+        {/* Section 4: Interactive App Preview */}
+        <AppPreview lang={lang} />
 
-        {/* Section 6: Future Vision & Trajectory */}
-        <Vision lang={lang} />
+        {/* Section 5: Benefits */}
+        <Benefits lang={lang} />
 
-        {/* Section 7: Frequently Asked Questions (Accordion) */}
+        {/* Section 6: Direct Download Section */}
+        <Download lang={lang} />
+
+        {/* Section 7: Frequently Asked Questions */}
         <FAQ lang={lang} />
 
-        {/* Section 8: Contact Form with Validation & Transparency */}
+        {/* Section 8: Contact & Feedback Form */}
         <Contact lang={lang} />
       </main>
 
       {/* Section 9: Footer */}
-      <Footer lang={lang} onLanguageChange={handleLanguageChange} />
+      <Footer
+        lang={lang}
+        onLanguageChange={handleLanguageChange}
+        onOpenPrivacy={openPrivacyModal}
+        onOpenTerms={openTermsModal}
+      />
+
+      {/* Google Authentication Dialog Modal */}
+      <AuthModal lang={lang} />
+
+      {/* Privacy Policy & Terms of Service Modal */}
+      <LegalModal
+        isOpen={legalModalState.isOpen}
+        onClose={closeLegalModal}
+        type={legalModalState.type}
+        lang={lang}
+      />
     </div>
   );
 };
