@@ -2,7 +2,31 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ==============================================================================
+   Local Vazirmatn Typography Integration (Variable WOFF2)
+   ============================================================================== */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn[wght].woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 @theme {
+  --font-sans: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --color-brand-primary: #3563F5;
   --color-brand-primary-hover: #2650DE;
   --color-brand-midnight: #101B3D;
@@ -34,22 +58,26 @@
 }
 
 @layer base {
-  :root {
-    --font-fa: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-en: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
   html {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     scroll-behavior: smooth;
     overflow-x: hidden;
   }
 
   body {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     max-width: 100%;
     background-color: #F5F7FF;
     color: #101B3D;
     transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
   }
 
   .dark body {
@@ -68,12 +96,9 @@
     }
   }
 
-  html[dir="rtl"] {
-    font-family: var(--font-fa);
-  }
-
+  html[dir="rtl"],
   html[dir="ltr"] {
-    font-family: var(--font-en);
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 }
 
