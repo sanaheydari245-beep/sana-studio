@@ -22,8 +22,7 @@ interface ContactProps {
 }
 
 interface FormState {
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   subject: string;
   message: string;
@@ -31,8 +30,7 @@ interface FormState {
 }
 
 interface FormErrors {
-  firstName?: string;
-  lastName?: string;
+  fullName?: string;
   email?: string;
   subject?: string;
   message?: string;
@@ -66,8 +64,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   const [currentIdempotencyKey, setCurrentIdempotencyKey] = useState<string>('');
 
   const [formData, setFormData] = useState<FormState>({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     subject: '',
     message: '',
@@ -120,28 +117,18 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-    const cleanFirstName = sanitize(formData.firstName);
-    const cleanLastName = sanitize(formData.lastName);
+    const cleanFullName = sanitize(formData.fullName);
     const cleanEmail = formData.email.trim();
     const cleanSubject = sanitize(formData.subject);
     const cleanMessage = sanitize(formData.message);
 
-    // First Name validation
-    if (!cleanFirstName) {
-      newErrors.firstName = t.validationErrors.firstNameRequired;
-    } else if (cleanFirstName.length < 2) {
-      newErrors.firstName = t.validationErrors.firstNameMin;
-    } else if (cleanFirstName.length > 40) {
-      newErrors.firstName = t.validationErrors.firstNameMax;
-    }
-
-    // Last Name validation
-    if (!cleanLastName) {
-      newErrors.lastName = t.validationErrors.lastNameRequired;
-    } else if (cleanLastName.length < 2) {
-      newErrors.lastName = t.validationErrors.lastNameMin;
-    } else if (cleanLastName.length > 40) {
-      newErrors.lastName = t.validationErrors.lastNameMax;
+    // Full Name validation
+    if (!cleanFullName) {
+      newErrors.fullName = t.validationErrors.nameRequired;
+    } else if (cleanFullName.length < 2) {
+      newErrors.fullName = t.validationErrors.nameMin;
+    } else if (cleanFullName.length > 80) {
+      newErrors.fullName = t.validationErrors.nameMax;
     }
 
     // Email validation
@@ -192,8 +179,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       setTimeout(() => {
         setStatus('success');
         setFormData({
-          firstName: '',
-          lastName: '',
+          fullName: '',
           email: '',
           subject: '',
           message: '',
@@ -212,9 +198,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     setStatus('submitting');
     setErrorMessage('');
 
-    const cleanFirstName = sanitize(formData.firstName);
-    const cleanLastName = sanitize(formData.lastName);
-    const cleanFullName = `${cleanFirstName} ${cleanLastName}`.trim();
+    const cleanFullName = sanitize(formData.fullName);
     const cleanEmail = formData.email.trim();
     const cleanSubject = sanitize(formData.subject);
     const cleanMessage = sanitize(formData.message);
@@ -230,7 +214,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     }
 
     // Primary: Attempt delivery via dedicated Node.js Chabokan Backend if configured
-    // Note: We map frontend firstName + lastName seamlessly to backend "name" parameter
+    // Note: We map frontend fullName directly to backend "name" parameter
     // strictly adhering to the backend API contract without requiring breaking changes.
     if (isBackendConfigured) {
       try {
@@ -256,8 +240,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           setStatus('success');
           setCurrentIdempotencyKey(''); // Clear key on successful delivery
           setFormData({
-            firstName: '',
-            lastName: '',
+            fullName: '',
             email: '',
             subject: '',
             message: '',
@@ -310,9 +293,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     if (isEmailJSConfigured) {
       try {
         const templateParams = {
+          name: cleanFullName,
           from_name: cleanFullName,
-          first_name: cleanFirstName,
-          last_name: cleanLastName,
           reply_to: cleanEmail,
           subject: cleanSubject,
           message: cleanMessage,
@@ -335,8 +317,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         if (response.status === 200) {
           setStatus('success');
           setFormData({
-            firstName: '',
-            lastName: '',
+            fullName: '',
             email: '',
             subject: '',
             message: '',
@@ -363,7 +344,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   };
 
   const handleDirectMail = () => {
-    const cleanFullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+    const cleanFullName = formData.fullName.trim();
     const encodedSubject = encodeURIComponent(
       `[Emerald Life Contact] ${formData.subject.trim() || 'New Inquiry'}`
     );
@@ -526,75 +507,40 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                 )}
 
                 {/* 
-                  Field 1 & Field 2: Separate First Name and Last Name inputs
+                  Field 1: Combined Full Name input
                 */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Field 1: First Name */}
-                  <div>
-                    <label
-                      htmlFor="contact-first-name"
-                      className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
-                    >
-                      {t.firstNameLabel} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="contact-first-name"
-                      type="text"
-                      maxLength={40}
-                      value={formData.firstName}
-                      onChange={(e) => {
-                        setFormData({ ...formData, firstName: e.target.value });
-                        if (errors.firstName) setErrors({ ...errors, firstName: undefined });
-                      }}
-                      placeholder={t.firstNamePlaceholder}
-                      className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
-                        errors.firstName
-                          ? 'border-red-500 ring-2 ring-red-500/20'
-                          : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
-                      }`}
-                    />
-                    {errors.firstName && (
-                      <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
-                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{errors.firstName}</span>
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Field 2: Last Name */}
-                  <div>
-                    <label
-                      htmlFor="contact-last-name"
-                      className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
-                    >
-                      {t.lastNameLabel} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      id="contact-last-name"
-                      type="text"
-                      maxLength={40}
-                      value={formData.lastName}
-                      onChange={(e) => {
-                        setFormData({ ...formData, lastName: e.target.value });
-                        if (errors.lastName) setErrors({ ...errors, lastName: undefined });
-                      }}
-                      placeholder={t.lastNamePlaceholder}
-                      className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
-                        errors.lastName
-                          ? 'border-red-500 ring-2 ring-red-500/20'
-                          : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
-                      }`}
-                    />
-                    {errors.lastName && (
-                      <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
-                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{errors.lastName}</span>
-                      </p>
-                    )}
-                  </div>
+                <div>
+                  <label
+                    htmlFor="contact-full-name"
+                    className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
+                  >
+                    {t.nameLabel} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="contact-full-name"
+                    type="text"
+                    maxLength={80}
+                    value={formData.fullName}
+                    onChange={(e) => {
+                      setFormData({ ...formData, fullName: e.target.value });
+                      if (errors.fullName) setErrors({ ...errors, fullName: undefined });
+                    }}
+                    placeholder={t.namePlaceholder}
+                    className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
+                      errors.fullName
+                        ? 'border-red-500 ring-2 ring-red-500/20'
+                        : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
+                    }`}
+                  />
+                  {errors.fullName && (
+                    <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.fullName}</span>
+                    </p>
+                  )}
                 </div>
 
-                {/* Field 3: Email Address */}
+                {/* Field 2: Email Address */}
                 <div>
                   <label
                     htmlFor="contact-email"

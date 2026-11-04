@@ -1,8 +1,9 @@
 import React from 'react';
 import type { Language } from '../data/translations';
 import { translations } from '../data/translations';
+import { useTheme } from '../context/ThemeContext';
 import { Logo } from './Logo';
-import { ArrowUp, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ShieldCheck, Sun, Moon } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
@@ -19,6 +20,7 @@ export const Footer: React.FC<FooterProps> = ({
 }) => {
   const t = translations[lang].footer;
   const nav = translations[lang].nav;
+  const { theme, toggleTheme } = useTheme();
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -49,31 +51,57 @@ export const Footer: React.FC<FooterProps> = ({
               {t.reserved}
             </p>
 
-            {/* Language Switcher in Footer */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
-                {lang === 'fa' ? 'زبان وب‌سایت:' : 'Language:'}
-              </span>
-              <button
-                onClick={() => onLanguageChange('fa')}
-                className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
-                  lang === 'fa'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                فارسی
-              </button>
-              <button
-                onClick={() => onLanguageChange('en')}
-                className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
-                  lang === 'en'
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                    : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                English
-              </button>
+            {/* Language & Theme Controls in Footer */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
+                  {lang === 'fa' ? 'زبان وب‌سایت:' : 'Language:'}
+                </span>
+                <button
+                  onClick={() => onLanguageChange('fa')}
+                  className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
+                    lang === 'fa'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  فارسی
+                </button>
+                <button
+                  onClick={() => onLanguageChange('en')}
+                  className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
+                    lang === 'en'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  English
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
+                  {lang === 'fa' ? 'پوسته:' : 'Theme:'}
+                </span>
+                <button
+                  onClick={toggleTheme}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all focus:outline-none"
+                  aria-label={translations[lang].nav.themeToggle}
+                  title={theme === 'dark' ? 'حالت روشن' : 'حالت تاریک'}
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{lang === 'fa' ? 'روشن' : 'Light'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{lang === 'fa' ? 'تاریک' : 'Dark'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 

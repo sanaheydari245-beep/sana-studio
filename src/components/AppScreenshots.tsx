@@ -67,7 +67,7 @@ export const AppScreenshots: React.FC<AppScreenshotsProps> = ({ lang }) => {
         </div>
 
         {/* Featured Showcase Card (Main Screenshot + Descriptive Panel) */}
-        <div className="max-w-4xl mx-auto rounded-3xl bg-white dark:bg-[#16241E] border border-emerald-500/20 shadow-xl overflow-hidden mb-12">
+        <div className="max-w-4xl mx-auto rounded-3xl bg-white dark:bg-[#16241E] border border-emerald-500/20 shadow-xl overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-6 sm:p-8 items-center">
             {/* Screenshot Frame (5 cols on md+) */}
             <div className="md:col-span-5 flex justify-center">
@@ -121,41 +121,6 @@ export const AppScreenshots: React.FC<AppScreenshotsProps> = ({ lang }) => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Gallery Grid of all 5 Screenshots */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 text-start">
-          {t.items.map((item) => {
-            const isCurrent = item.id === selectedId;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setSelectedId(item.id)}
-                className={`p-3 rounded-2xl bg-white dark:bg-[#16241E] border text-start transition-all duration-200 focus:outline-none flex flex-col justify-between ${
-                  isCurrent
-                    ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md'
-                    : 'border-slate-200/90 dark:border-emerald-500/15 hover:border-emerald-500/35'
-                }`}
-              >
-                <div className="rounded-xl overflow-hidden bg-black aspect-[9/19] mb-3 border border-slate-800/40">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover object-top transform hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                </div>
-                <div>
-                  <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block mb-0.5">
-                    {item.tag}
-                  </span>
-                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1">
-                    {item.title}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
         </div>
       </div>
     </section>
