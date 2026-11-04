@@ -29,9 +29,9 @@ export interface ProductItem {
 }
 
 /**
- * کاتالوگ دادهمحور و مقیاس‌پذیر محصولات Sana Studio
- * در حال حاضر تنها اپلیکیشن واقعی ساخته‌شده استودیو: Emerald Life (نسخه اندروید)
- * این ساختار آرایه‌ای کاملاً آماده اضافه شدن اپلیکیشن‌های بعدی است.
+ * کاتالوگ دادهمحور و مقیاس‌پذیر اپلیکیشن Emerald Life
+ * اپلیکیشن واقعی ساخته‌شده: Emerald Life (نسخه اندروید)
+ * این ساختار آرایه‌ای کاملاً آماده توسعه و به‌روزرسانی قابلیت‌ها است.
  */
 export const productsData: ProductItem[] = [
   {
@@ -49,8 +49,8 @@ export const productsData: ProductItem[] = [
       en: 'Emerald Life is an Android app for life and study management powered by local SQLite.',
     },
     fullDescription: {
-      fa: 'Emerald Life یک اپلیکیشن اندرویدی برای مدیریت زندگی و مطالعه است که به عنوان محصول رسمی Sana Studio، به صورت کاملاً آفلاین و متمرکز برای دانشجویان و دانش‌آموزان توسعه یافته است. این اپلیکیشن با تکیه بر معماری داده‌های محلی (Local-first)، امکان مدیریت تکالیف درسی بر پایه اولویت، تنظیم برنامه هفتگی آموزشی، ردیابی زنجیره استمرار عادات (Habit Streak) و اجرای جلسات تمرکز پومودورو با اصوات محیطی آرامش‌بخش را بدون نیاز به اتصال اینترنت در دستگاه‌های اندرویدی فراهم می‌سازد.',
-      en: 'Emerald Life is an Android app for life and study management created under Sana Studio. Designed as a private, local-first companion for students and learners on Android devices, it unites academic course planning, daily habit streak tracking, ambient Pomodoro focus sessions, and performance analytics into an offline, distraction-free environment.',
+      fa: 'Emerald Life یک اپلیکیشن اندرویدی برای مدیریت زندگی و مطالعه است که به صورت کاملاً آفلاین و متمرکز برای دانشجویان و دانش‌آموزان توسعه یافته است. این اپلیکیشن با تکیه بر معماری داده‌های محلی (Local-first)، امکان مدیریت تکالیف درسی بر پایه اولویت، تنظیم برنامه هفتگی آموزشی، ردیابی زنجیره استمرار عادات (Habit Streak) و اجرای جلسات تمرکز پومودورو با اصوات محیطی آرامش‌بخش را بدون نیاز به اتصال اینترنت در دستگاه‌های اندرویدی فراهم می‌سازد.',
+      en: 'Emerald Life is an Android app for life and study management. Designed as a private, local-first companion for students and learners on Android devices, it unites academic course planning, daily habit streak tracking, ambient Pomodoro focus sessions, and performance analytics into an offline, distraction-free environment.',
     },
     category: {
       fa: 'مدیریت درس و سبک زندگی',

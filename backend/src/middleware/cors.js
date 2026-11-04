@@ -3,32 +3,41 @@ const config = require('../config/env');
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow non-browser requests (e.g. mobile apps, curl, health probes) where origin is undefined
+    // 1. Allow requests with no origin (e.g. mobile apps, curl, automated uptime probes)
     if (!origin) {
       return callback(null, true);
     }
 
+    // 2. Strict matching against explicitly allowed origins
     const isAllowed = config.cors.allowedOrigins.some(allowed => {
       // Direct exact match
       if (allowed === origin) return true;
-      // Also allow subdomain match if applicable
+      // Exact host & protocol match (e.g. handles trailing slash differences)
       try {
-        const allowedHost = new URL(allowed).host;
-        const reqHost = new URL(origin).host;
-        return allowedHost === reqHost;
+        const allowedUrl = new URL(allowed);
+        const reqUrl = new URL(origin);
+        return allowedUrl.origin === reqUrl.origin;
       } catch {
         return false;
       }
     });
 
-    if (isAllowed || config.env === 'development') {
+    if (isAllowed) {
       return callback(null, true);
     }
 
-    return callback(new Error(`CORS Error: Origin '${origin}' is not allowed by policy.`));
+    // Disallowed origin: deny by passing false (suppresses Access-Control-Allow-Origin header)
+    return callback(null, false);
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Idempotency-Key', 'X-Idempotency-Key'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Accept',
+    'Idempotency-Key',
+    'X-Idempotency-Key',
+    'CF-Turnstile-Response',
+  ],
   credentials: true,
   maxAge: 86400, // 24 hours preflight cache
 };

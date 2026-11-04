@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import emailjs from '@emailjs/browser';
 import type { Language } from '../data/translations';
 import { translations } from '../data/translations';
 import {
@@ -34,6 +33,16 @@ interface FormErrors {
   message?: string;
 }
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement | string, options: Record<string, unknown>) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+  }
+}
+
 const OFFICIAL_EMAIL = 'sanaheydari245@gmail.com';
 const COOLDOWN_SECONDS = 60;
 const STORAGE_KEY_LAST_SENT = 'sana_contact_last_sent_timestamp';
@@ -45,15 +54,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   // When empty, relative '/api/contact' is used, routing via same-origin or Vite dev proxy
   const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
   const contactApiEndpoint = apiBaseUrl ? `${apiBaseUrl}/api/contact` : '/api/contact';
-
-  // Environment variables for EmailJS (preserved as reliable fallback)
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
-
-  const isEmailJSConfigured = Boolean(
-    serviceId.trim() && templateId.trim() && publicKey.trim()
-  );
 
   // Active idempotency key for the current submission attempt
   // Reused across retries if network fails, regenerated only on brand-new input / reset
@@ -76,6 +76,67 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
 
   // Rate limiting / cooldown timer
   const [remainingCooldown, setRemainingCooldown] = useState<number>(0);
+
+  // Cloudflare Turnstile Bot Protection integration
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const turnstileContainerRef = React.useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!turnstileSiteKey || !turnstileContainerRef.current) return;
+
+    const renderTurnstileWidget = () => {
+      if (window.turnstile && turnstileContainerRef.current && !turnstileWidgetId.current) {
+        try {
+          turnstileWidgetId.current = window.turnstile.render(turnstileContainerRef.current, {
+            sitekey: turnstileSiteKey,
+            action: 'contact',
+            theme: 'auto',
+            callback: (token: unknown) => {
+              if (typeof token === 'string') setTurnstileToken(token);
+            },
+            'expired-callback': () => {
+              setTurnstileToken('');
+            },
+            'error-callback': () => {
+              setTurnstileToken('');
+            },
+          });
+        } catch (e) {
+          console.warn('Turnstile widget render warning', e);
+        }
+      }
+    };
+
+    if (window.turnstile) {
+      renderTurnstileWidget();
+      return;
+    }
+
+    const scriptId = 'cf-turnstile-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => renderTurnstileWidget();
+      document.head.appendChild(script);
+    } else {
+      const existing = document.getElementById(scriptId);
+      if (existing) existing.addEventListener('load', renderTurnstileWidget);
+    }
+
+    return () => {
+      if (window.turnstile && turnstileWidgetId.current) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current);
+        } catch {}
+        turnstileWidgetId.current = null;
+      }
+    };
+  }, [turnstileSiteKey]);
 
   useEffect(() => {
     const checkCooldown = () => {
@@ -203,7 +264,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       setCurrentIdempotencyKey(idempotencyKey);
     }
 
-    // Primary: Attempt direct delivery via dedicated Node.js Backend API
+    // Direct delivery exclusively via dedicated Node.js Backend API
     try {
       const response = await fetch(contactApiEndpoint, {
         method: 'POST',
@@ -211,6 +272,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Idempotency-Key': idempotencyKey,
+          ...(turnstileToken ? { 'CF-Turnstile-Response': turnstileToken } : {}),
         },
         body: JSON.stringify({
           name: cleanFullName,
@@ -218,6 +280,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           subject: cleanSubject,
           message: cleanMessage,
           honeypot: '',
+          turnstileToken,
+          'cf-turnstile-response': turnstileToken,
         }),
       });
 
@@ -226,6 +290,12 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       if (response.ok && data?.success) {
         setStatus('success');
         setCurrentIdempotencyKey(''); // Clear key on successful delivery
+        if (window.turnstile && turnstileWidgetId.current) {
+          try {
+            window.turnstile.reset(turnstileWidgetId.current);
+          } catch {}
+        }
+        setTurnstileToken('');
         setFormData({
           fullName: '',
           email: '',
@@ -244,7 +314,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         return;
       }
 
-      // If backend returned rate limit or validation error, report error directly
+      // Handle specific HTTP error responses
       if (response.status === 429) {
         setStatus('error');
         setErrorMessage(data?.messageFa || data?.message || t.rateLimitWarning);
@@ -258,73 +328,14 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         return;
       }
 
-      // Backend returned explicit 5xx error (e.g. 503 SMTP unavailable)
-      if (!isEmailJSConfigured) {
-        throw new Error(data?.messageFa || data?.message || t.errorMessage);
-      }
-
-      console.warn('Dedicated backend returned server error, attempting EmailJS fallback...');
-    } catch (backendErr: unknown) {
-      console.warn('Primary backend delivery attempt failed (network/server):', backendErr);
-      if (!isEmailJSConfigured) {
-        setStatus('error');
-        const errObj = backendErr as { message?: string };
-        setErrorMessage(errObj?.message || t.errorMessage);
-        return;
-      }
-    }
-
-    // Secondary / Fallback: EmailJS integration
-    if (isEmailJSConfigured) {
-      try {
-        const templateParams = {
-          name: cleanFullName,
-          from_name: cleanFullName,
-          reply_to: cleanEmail,
-          subject: cleanSubject,
-          message: cleanMessage,
-          to_email: OFFICIAL_EMAIL,
-          sent_at: new Date().toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US', {
-            dateStyle: 'full',
-            timeStyle: 'medium',
-          }),
-        };
-
-        const response = await emailjs.send(
-          serviceId,
-          templateId,
-          templateParams,
-          {
-            publicKey: publicKey,
-          }
-        );
-
-        if (response.status === 200) {
-          setStatus('success');
-          setFormData({
-            fullName: '',
-            email: '',
-            subject: '',
-            message: '',
-            honeypot: '',
-          });
-          setErrors({});
-
-          try {
-            localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
-            setRemainingCooldown(COOLDOWN_SECONDS);
-          } catch {
-            // ignore storage error
-          }
-        } else {
-          setStatus('error');
-          setErrorMessage(response.text || t.errorMessage);
-        }
-      } catch (err: unknown) {
-        setStatus('error');
-        const errObj = err as { text?: string; message?: string };
-        setErrorMessage(errObj?.text || errObj?.message || t.errorMessage);
-      }
+      // Any other backend error (400, 403, 500, 503, etc.)
+      setStatus('error');
+      setErrorMessage(data?.messageFa || data?.message || t.errorMessage);
+    } catch (networkErr: unknown) {
+      console.warn('Backend API delivery attempt failed (network error):', networkErr);
+      setStatus('error');
+      const errObj = networkErr as { message?: string };
+      setErrorMessage(errObj?.message || t.errorMessage);
     }
   };
 
@@ -338,6 +349,12 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     setStatus('idle');
     setErrors({});
     setCurrentIdempotencyKey('');
+    if (window.turnstile && turnstileWidgetId.current) {
+      try {
+        window.turnstile.reset(turnstileWidgetId.current);
+      } catch {}
+    }
+    setTurnstileToken('');
   };
 
   return (
@@ -601,6 +618,13 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                     </p>
                   )}
                 </div>
+
+                {/* Cloudflare Turnstile Bot Protection Challenge (renders when VITE_TURNSTILE_SITE_KEY is provided) */}
+                {turnstileSiteKey && (
+                  <div className="flex justify-center my-2">
+                    <div ref={turnstileContainerRef} id="cf-turnstile-widget" />
+                  </div>
+                )}
 
                 {/* Professional Submit Button (14-16px) */}
                 <div className="pt-1">

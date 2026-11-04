@@ -13,7 +13,7 @@ router.get('/health', async (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'sana-studio-backend',
+    service: 'emerald-life-backend',
     environment: config.env,
     uptimeSeconds,
   });

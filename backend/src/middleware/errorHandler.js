@@ -10,25 +10,30 @@ function errorHandler(err, req, res, next) {
     return next(err);
   }
 
-  // Log error internally on server console
+  const isProd = config.env === 'production';
+
+  // Redact potential secrets or passwords from server logs
+  const safeMessage = (err.message || '')
+    .replace(/(pass(word)?|secret|token|key|auth)\s*[:=]\s*[^\s]+/gi, '$1=[REDACTED]');
+
+  // Log error internally on server console without exposing sensitive data
   console.error('[API Error]', {
     timestamp: new Date().toISOString(),
     method: req.method,
     url: req.originalUrl,
     ip: req.ip,
-    message: err.message,
-    stack: config.env === 'development' ? err.stack : undefined,
+    message: safeMessage,
+    stack: !isProd ? err.stack : undefined,
   });
 
   const statusCode = err.status || err.statusCode || 500;
-  const isProd = config.env === 'production';
 
   res.status(statusCode).json({
     success: false,
     error: err.name || 'InternalServerError',
     message: isProd && statusCode === 500
       ? 'An unexpected error occurred. Please try again later.'
-      : err.message || 'Server error',
+      : safeMessage || 'Server error',
   });
 }
 

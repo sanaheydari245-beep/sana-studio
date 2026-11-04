@@ -29,27 +29,53 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * Validation Middleware for Contact Form
  */
 function validateContactRequest(req, res, next) {
-  const { name, email, subject, message, honeypot, _gotcha } = req.body || {};
+  // 1. Guard against unexpected or malformed payload structures
+  if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid request payload. Expected a JSON object.',
+    });
+  }
 
-  // 1. Honeypot check: If bot filled either honeypot field, stop silently
+  // 2. Reject client-supplied recipient fields to prevent arbitrary relay manipulation
+  if (req.body.to !== undefined || req.body.cc !== undefined || req.body.bcc !== undefined) {
+    return res.status(400).json({
+      success: false,
+      error: 'Recipient fields (to, cc, bcc) cannot be specified by the client.',
+    });
+  }
+
+  const { name, email, subject, message, honeypot, _gotcha } = req.body;
+
+  // 3. Honeypot check: If bot filled either honeypot field, stop silently and return generic success
   const botTrap = (honeypot || _gotcha || '').toString().trim();
   if (botTrap.length > 0) {
-    // Pretend success to fool spam bots without sending actual email
+    // Pretend success to fool spam bots without dispatching actual email
     return res.status(200).json({
       success: true,
       message: 'Message processed successfully',
     });
   }
 
+  // 4. Reject unexpected non-string types for user-controlled input fields
+  for (const field of ['name', 'email', 'subject', 'message']) {
+    if (field in req.body && typeof req.body[field] !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: `Field '${field}' must be a string.`,
+      });
+    }
+  }
+
   const errors = {};
 
-  // Clean values: enforce single-line stripping on headers to neutralize header injection
+  // Clean values: enforce single-line stripping on headers to neutralize CRLF injection
   const cleanName = sanitizeSingleLine(name);
   const cleanEmail = (email || '').toString().trim();
   const cleanSubject = sanitizeSingleLine(subject);
   const cleanMessage = sanitizeText(message);
 
-  // Validate Name
+  // Validate Name (2 - 80 characters)
   if (!cleanName) {
     errors.name = 'Name is required / نام الزامی است';
   } else if (cleanName.length < 2) {
@@ -58,7 +84,7 @@ function validateContactRequest(req, res, next) {
     errors.name = 'Name must not exceed 80 characters / نام نباید بیشتر از ۸۰ کاراکتر باشد';
   }
 
-  // Validate Email
+  // Validate Email (valid pattern, max 120 characters)
   if (!cleanEmail) {
     errors.email = 'Email address is required / نشانی ایمیل الزامی است';
   } else if (!EMAIL_REGEX.test(cleanEmail)) {
@@ -67,7 +93,7 @@ function validateContactRequest(req, res, next) {
     errors.email = 'Email must not exceed 120 characters / ایمیل نباید بیشتر از ۱۲۰ کاراکتر باشد';
   }
 
-  // Validate Subject
+  // Validate Subject (3 - 150 characters)
   if (!cleanSubject) {
     errors.subject = 'Subject is required / موضوع پیام الزامی است';
   } else if (cleanSubject.length < 3) {
@@ -76,7 +102,7 @@ function validateContactRequest(req, res, next) {
     errors.subject = 'Subject must not exceed 150 characters / موضوع نباید بیشتر از ۱۵۰ کاراکتر باشد';
   }
 
-  // Validate Message
+  // Validate Message (10 - 3000 characters)
   if (!cleanMessage) {
     errors.message = 'Message text is required / متن پیام الزامی است';
   } else if (cleanMessage.length < 10) {
