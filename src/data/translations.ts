@@ -4,12 +4,12 @@ export interface TranslationSchema {
   nav: {
     home: string;
     features: string;
+    screenshots: string;
     howItWorks: string;
-    preview: string;
-    benefits: string;
+    values: string;
     faq: string;
     contact: string;
-    downloadApp: string;
+    downloadApp?: string;
     account: string;
     signOut: string;
     themeToggle: string;
@@ -22,8 +22,8 @@ export interface TranslationSchema {
     title: string;
     titleHighlight: string;
     subtitle: string;
-    downloadBtn: string;
     exploreBtn: string;
+    screenshotsBtn: string;
     platformNotice: string;
     stats: {
       tasksLabel: string;
@@ -46,6 +46,18 @@ export interface TranslationSchema {
       bullets: string[];
     }>;
   };
+  screenshots: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    items: Array<{
+      id: string;
+      title: string;
+      desc: string;
+      image: string;
+      tag: string;
+    }>;
+  };
   howItWorks: {
     badge: string;
     title: string;
@@ -56,25 +68,14 @@ export interface TranslationSchema {
       desc: string;
     }>;
   };
-  preview: {
-    badge: string;
-    title: string;
-    subtitle: string;
-    tabs: Array<{
-      id: string;
-      label: string;
-      title: string;
-      desc: string;
-      metrics: Array<{ label: string; value: string }>;
-    }>;
-  };
-  benefits: {
+  values: {
     badge: string;
     title: string;
     subtitle: string;
     items: Array<{
       title: string;
       desc: string;
+      tag: string;
     }>;
   };
   faq: {
@@ -85,17 +86,6 @@ export interface TranslationSchema {
       q: string;
       a: string;
     }>;
-  };
-  download: {
-    badge: string;
-    title: string;
-    subtitle: string;
-    apkBtn: string;
-    versionInfo: string;
-    sizeInfo: string;
-    instructionsTitle: string;
-    instructions: string[];
-    notice: string;
   };
   authModal: {
     title: string;
@@ -111,6 +101,10 @@ export interface TranslationSchema {
     badge: string;
     title: string;
     subtitle: string;
+    firstNameLabel: string;
+    firstNamePlaceholder: string;
+    lastNameLabel: string;
+    lastNamePlaceholder: string;
     nameLabel: string;
     namePlaceholder: string;
     emailLabel: string;
@@ -122,6 +116,12 @@ export interface TranslationSchema {
     submitBtn: string;
     submittingBtn: string;
     validationErrors: {
+      firstNameRequired: string;
+      firstNameMin: string;
+      firstNameMax: string;
+      lastNameRequired: string;
+      lastNameMin: string;
+      lastNameMax: string;
       nameRequired: string;
       nameMin: string;
       nameMax: string;
@@ -178,9 +178,9 @@ export const translations: Record<Language, TranslationSchema> = {
     nav: {
       home: 'صفحه اصلی',
       features: 'امکانات و قابلیت‌ها',
+      screenshots: 'تصاویر محیط برنامه',
       howItWorks: 'نحوه کارکرد',
-      preview: 'نمای اپلیکیشن',
-      benefits: 'مزایا و ارزش‌ها',
+      values: 'ارزش‌های کلیدی ما',
       faq: 'پرسش‌های متداول',
       contact: 'ارتباط با ما',
       downloadApp: 'دانلود اپلیکیشن',
@@ -197,311 +197,250 @@ export const translations: Record<Language, TranslationSchema> = {
       titleHighlight: 'هر روز یک قدم پیشرفت کن.',
       subtitle:
         'Emerald Life یک دستیار هوشمند، جامع و محلی (Local-first) برای سازماندهی وظایف روزانه، تثبیت عادت‌های پایدار، زمان‌بندی دقیق برنامه‌ها، پایش زمان مطالعه و تحلیل شفاف بهره‌وری است.',
-      downloadBtn: 'دانلود رایگان نسخه اندروید',
-      exploreBtn: 'مشاهده قابلیت‌ها',
-      platformNotice: 'توسعه‌یافته به صورت اختصاصی برای اندروید • کاملاً محلی و بدون وابستگی ابری',
+      exploreBtn: 'مشاهده امکانات برنامه',
+      screenshotsBtn: 'تصاویر رابط کاربری',
+      platformNotice: 'توسعه‌یافته به صورت اختصاصی برای اندروید • ذخیره‌سازی ۱۰۰٪ محلی داده‌ها',
       stats: {
-        tasksLabel: 'مدیریت اولویت‌ها',
-        tasksSub: 'سیستم پویا و منعطف وظایف',
-        habitsLabel: 'زنجیره استمرار',
-        habitsSub: 'ثبت عادت‌ها و روتین‌های روزمره',
-        studyLabel: 'تمرکز و مطالعه',
-        studySub: 'تایمر هوشمند و لاگ سرفصل‌ها',
+        tasksLabel: 'مدیریت وظایف',
+        tasksSub: 'اولویت‌بندی و دسته‌بندی تسک‌ها',
+        habitsLabel: 'ردیاب عادت‌ها',
+        habitsSub: 'زنجیره استمرار روزانه',
+        studyLabel: 'تایمر مطالعه',
+        studySub: 'تمرکز عمیق با تکنیک پومودورو',
       },
     },
     features: {
-      badge: 'قابلیت‌های واقعی نرم‌افزار',
-      title: 'یک پلتفرم کامل، بدون ابزارهای متفرقه',
+      badge: 'قابلیت‌های واقعی اپلیکیشن',
+      title: 'امکانات جامع و یکپارچه در یک محیط مستقل',
       subtitle:
-        'تمامی ماژول‌های Emerald Life بر پایه معماری داده‌های محلی و نیازهای واقعی یادگیری و زندگی هدفمند طراحی شده‌اند.',
+        'کلیه ابزارهای موردنیاز برای سازماندهی روزمرگی و ارتقای ساعات مطالعه، بدون نیاز به اینترنت و بدون شلوغی‌های اضافه.',
       items: [
         {
           id: 'tasks',
-          title: 'مدیریت پیشرفته وظایف (Task Management)',
-          desc: 'ایجاد تسک‌ها با تعیین اولویت‌بندی، دسته‌بندی موضوعی، موعد مقرر و ثبت وضعیت تکمیل جهت حفظ انضباط کاری.',
-          tag: 'سازماندهی',
+          title: 'مدیریت هوشمند وظایف (Task Management)',
+          desc: 'ثبت و اولویت‌بندی کارهای جاری و انجام‌شده با برچسب‌های درسی و کاری، ثبت موعد مقرر و فیلتر سریع تسک‌ها.',
+          tag: 'سازماندهی کارها',
           bullets: [
-            'ثبت تسک‌ها همراه با یادداشت و جزئیات',
-            'سطوح اولویت‌بندی فوری، ضروری و عادی',
-            'فیلتر هوشمند بر اساس وضعیت اتمام و تاریخ',
-            'مرتب‌سازی آسان و پایش وظایف روزانه',
+            'دسته‌بندی موضوعی بر اساس دروس، کار و پروژه‌ها',
+            'تعیین اولویت‌های فوری و عادی',
+            'تیک‌زدن آسان و آرشیو سریع موارد تکمیل‌شده',
           ],
         },
         {
           id: 'habits',
-          title: 'مدیریت و تثبیت عادت‌ها (Habit Tracker)',
-          desc: 'ساخت و پیگیری عادت‌های فردی، حفظ زنجیره استمرار و تبدیل اهداف کوچک به رفتارهای خودکار و ماندگار.',
-          tag: 'رشد فردی',
+          title: 'ردیابی زنجیره عادت‌ها (Habit Tracking)',
+          desc: 'ایجاد و حفظ روتین‌های مثبت روزانه با شمارنده استمرار (Streak) و ثبت اهداف تکرار هفتگی.',
+          tag: 'پایداری رفتار',
           bullets: [
-            'تعریف عادت‌های روزانه، هفتگی و بازه‌ای',
-            'محاسبه زنجیره موفقیت (Streak) و نرخ پیوستگی',
-            'ثبت سریع و تک‌لمسی انجام عادت',
-            'پایش روند پایداری و یادآورهای هدفمند',
+            'شمارش خودکار روزهای متوالی پایبندی (Streak)',
+            'انتخاب آیکون و تم رنگی اختصاصی برای هر عادت',
+            'پایش درصد پیشرفت هفتگی و ماهانه',
           ],
         },
         {
           id: 'schedule',
-          title: 'برنامه‌ها و تقویم زمانی (Schedule & Programs)',
-          desc: 'طراحی جدول زمانی روزمره، مدیریت رویدادهای پیش‌رو و چیدمان حساب‌شده فعالیت‌های آموزشی و شخصی.',
+          title: 'گاه‌شمار و برنامه‌ریزی (Schedule Management)',
+          desc: 'نمای تقویم هفتگی و ساعتی منظم برای ثبت رویدادها، زمان کلاس‌ها و جلسات مهم بدون تداخل.',
           tag: 'مدیریت زمان',
           bullets: [
-            'تقویم جامع شمسی (جلالی) و میلادی هماهنگ',
-            'مشاهده فعالیت‌های هر روز در یک نگاه',
-            'جلوگیری از تداخل برنامه‌ها و کلاس‌ها',
-            'برنامه‌ریزی دقیق جلسات، امتحانات و رویدادها',
+            'گاه‌شمار افقی روزهای هفته',
+            'تفکیک دقیق بازه‌های زمانی با رنگ‌بندی تفکیک‌شده',
+            'مشاهده برنامه‌های اختصاصی هر روز در یک قاب',
           ],
         },
         {
-          id: 'study',
-          title: 'جلسات مطالعه و تایمر تمرکز (Study Sessions)',
-          desc: 'ابزار اختصاصی مدیریت مطالعه همراه با تایمر تمرکز، تفکیک دروس و مباحث، و ثبت ساعات مفید خواندن.',
-          tag: 'ویژه محصلان',
+          id: 'timer',
+          title: 'تایمر تمرکز و جلسات مطالعه (Focus Timer)',
+          desc: 'شمارش معکوس متمرکز ۲۵ دقیقه‌ای پومودورو به همراه کنترل بازه‌های استراحت کوتاه و بلند.',
+          tag: 'تمرکز عمیق',
           bullets: [
-            'تایمر دقیق تمرکز با فواصل استراحت هوشمند',
-            'ثبت تفکیک‌شده مبحث، کتاب و مدت مطالعه',
-            'لاگ تاریخچه کامل تمام جلسات آموزشی',
-            'صدای زنگ اعلام اتمام بازه و استراحت',
+            'حالت‌های شمارش معکوس (Countdown)، استاپ‌واچ و اینتروال',
+            'زنگ هشدار پایان بازه تمرکز و شروع استراحت',
+            'ثبت لاگ مباحث مطالعه‌شده در حافظه دستگاه',
           ],
         },
         {
           id: 'analytics',
-          title: 'آمار و تحلیل جامع عملکرد (Analytics)',
-          desc: 'مشاهده کارنامه بهره‌وری روزانه، هفتگی، ماهانه و نمودار روند ۶ ماهه برای شناخت الگوهای رفتاری.',
-          tag: 'بینش آماری',
+          title: 'تحلیل و نمودارهای پیشرفت (Progress Analytics)',
+          desc: 'گراف‌های آماری از میزان مطالعه، عملکرد در انجام وظایف و روند پایداری عادت‌ها جهت بررسی بهره‌وری.',
+          tag: 'بینش واقعی',
           bullets: [
-            'کارنامه جامع درصد تکمیل برنامه‌ها و تسک‌ها',
-            'نمودار مقایسه‌ای ساعات مطالعه در طول هفته',
-            'گزارش دوره‌ای ۶ ماهه پیشرفت فردی',
-            'نمایش بصری عملکرد بدون نیاز به اتصال اینترنت',
+            'نمودار ساعات مطالعه هفتگی و ماهیانه',
+            'نسبت تسک‌های انجام‌شده به کل وظایف',
+            'محاسبه ۱۰۰٪ محلی بدون ارسال داده به سرور',
           ],
         },
         {
           id: 'notifications',
-          title: 'یادآورها و اعلانات هوشمند (Notifications)',
-          desc: 'سیستم اطلاع‌رسانی بومی اندروید برای یادآوری سررسید تسک‌ها، زمان عادت‌ها و اعلان شروع جلسات مطالعه.',
-          tag: 'هماهنگی',
+          title: 'اعلانات و یادآورهای بومی (Notifications)',
+          desc: 'یادآوری‌های به‌موقع برای سررسید کارها، زمان اجرای عادت‌ها و پایان بازه‌های مطالعه.',
+          tag: 'انضباط فردی',
           bullets: [
-            'یادآورهای به‌موقع بدون مصرف باتری اضافه',
-            'اعلان پایان بازه‌های تمرکز و زنگ استراحت',
-            'تنظیم اختصاصی ساعت و صدای اعلانات',
-            'عملکرد کاملاً آفلاین بدون قطعی در اعلان',
+            'تنظیم یادآور برای ساعت مشخص در روز',
+            'عملکرد بدون نیاز به اینترنت یا سرویس‌های ابری',
+            'آلارم‌های صوتی متنوع و قابل انتخاب',
           ],
         },
         {
           id: 'personalization',
-          title: 'شخصی‌سازی گسترده و تم‌ها (Customization)',
-          desc: 'حالت‌های تم روشن و تاریک OLED، انتخاب رنگ سازمانی، تغییر فرمت تقویم و گزینه‌های سفارشی تایمر.',
-          tag: 'انعطاف‌پذیری',
+          title: 'شخصی‌سازی ظاهر و تم‌ها (Themes & Personalization)',
+          desc: 'پشتیبانی از حالت تاریک مخصوص پنل‌های OLED (کاهش مصرف باتری) و پالت‌های رنگی جذاب.',
+          tag: 'ظاهر منعطف',
           bullets: [
-            'پشتیبانی همزمان از تم روشن، تیره و Ultra Dark',
-            'بیش از ۳۰ پالت رنگی برای سربرگ و اِلِمان‌ها',
-            'سوئیچ سریع میان تقویم شمسی و میلادی',
-            'دو زبانه بودن محیط اپلیکیشن (فارسی و انگلیسی)',
+            'تم مشکی خالص (Ultra Dark OLED) و تم استاندارد',
+            'پشتیبانی کامل از زبان فارسی با فونت اصیل وزیرمتن',
+            'شخصی‌سازی رنگ کارت‌ها و آیکون‌ها',
           ],
+        },
+      ],
+    },
+    screenshots: {
+      badge: 'تصاویر واقعی اپلیکیشن',
+      title: 'نگاهی به محیط و رابط کاربری Emerald Life',
+      subtitle:
+        'تصاویر گرفته‌شده از بخش‌های مختلف نسخه واقعی اپلیکیشن اندروید در تم تیره با زبان طراحی ارگونومیک.',
+      items: [
+        {
+          id: 'home',
+          title: 'داشبورد جامع (Home Overview)',
+          desc: 'مشاهده یکپارچه وضعیت تسک‌های در انتظار، پیوستگی عادت‌ها، برنامه‌های امروز و نوار پیشرفت کلی در یک نگاه.',
+          image: '/images/home.jpg',
+          tag: 'داشبورد اصلی',
+        },
+        {
+          id: 'schedule',
+          title: 'گاه‌شمار و برنامه‌ریزی (Schedule)',
+          desc: 'نوار هفتگی تقویم، تفکیک بازه‌های ساعتی کلاس‌ها و برنامه‌ها با خطوط رنگی و کارت‌های مرتب زمانی.',
+          image: '/images/schdule.jpg',
+          tag: 'گاه‌شمار زمانی',
+        },
+        {
+          id: 'tasks',
+          title: 'لیست وظایف (My Tasks)',
+          desc: 'فهرست اولویت‌بندی شده تسک‌ها با برچسب‌های درسی و امتحانی، امکان علامت‌گذاری سریع و مشاهده موارد تکمیل‌شده.',
+          image: '/images/task.jpg',
+          tag: 'مدیریت کارها',
+        },
+        {
+          id: 'habits',
+          title: 'ردیاب عادت‌ها (Habits Tracker)',
+          desc: 'کارت‌های اختصاصی عادات روزانه با آیکون‌های تفکیک‌شده، شمارنده رکورد روزهای متوالی و ثبت وضعیت روزمره.',
+          image: '/images/habit.jpg',
+          tag: 'زنجیره عادت',
+        },
+        {
+          id: 'timer',
+          title: 'تایمر تمرکز مطالعه (Focus Timer)',
+          desc: 'شمارش معکوس دایره‌ای ۲۵ دقیقه‌ای منطبق بر تکنیک پومودورو، دکمه‌های کنترل استراحت و سوئیچ بین حالت‌ها.',
+          image: '/images/timer.jpg',
+          tag: 'تایمر فکوس',
         },
       ],
     },
     howItWorks: {
-      badge: 'شروع آسان و گام‌به‌گام',
-      title: 'مسیر بهره‌وری با Emerald Life',
-      subtitle: 'چگونه در ۵ گام منظم، کنترل کامل وظایف و ساعات یادگیری خود را به دست بگیرید.',
+      badge: 'مسیر گام‌به‌گام بهره‌وری',
+      title: 'چگونه Emerald Life روز شما را متحول می‌کند؟',
+      subtitle:
+        'پنج گام ساده برای ساختن روال روزمره منسجم، حذف بی‌نظمی‌ها و دستیابی به کیفیت مطالعه بالاتر.',
       steps: [
         {
           step: '۰۱',
-          title: 'تنظیم فضای کاری و اولویت‌ها',
-          desc: 'برنامه را باز کرده، زبان و تقویم مورد نظر را برگزینید و رنگ دلخواه رابط کاربری را تنظیم کنید.',
+          title: 'ثبت وظایف و برنامه‌های روزانه',
+          desc: 'کارهای درسی و شخصی خود را با مشخص کردن مبحث و زمان وارد کنید تا ذهنتان از نگرانی فراموشی خالی شود.',
         },
         {
           step: '۰۲',
-          title: 'ثبت وظایف و جدول زمان‌بندی',
-          desc: 'تسک‌های تحصیلی و کارهای روزانه را با اولویت‌بندی مشخص در بخش وظایف و تقویم اضافه کنید.',
+          title: 'تعریف عادات سازنده',
+          desc: 'عادت‌های کوچک و مهم مانند مطالعه روزانه، ورزش یا زبان را با هدف تکرار مشخص ثبت کنید.',
         },
         {
           step: '۰۳',
-          title: 'تعریف و پایش عادت‌های مثبت',
-          desc: 'عادت‌های روزانه خود (ورزش، مطالعه آزاد، مرور لغات) را ثبت کرده و هر روز تیک بزنید.',
+          title: 'شروع تایمر تمرکز مطالعه',
+          desc: 'هنگام شروع درس یا کار عمیق، تایمر ۲۵ دقیقه‌ای را فعال کنید و بدون حواس‌پرتی روی هدف متمرکز شوید.',
         },
         {
           step: '۰۴',
-          title: 'مدیریت جلسات مطالعه با تایمر',
-          desc: 'درس مورد نظر را انتخاب کنید، تایمر تمرکز را استارت بزنید و زمان واقعی مطالعه را ذخیره کنید.',
+          title: 'ثبت منظم روند پیشرفت',
+          desc: 'پس از پایان هر تسک یا عادت، با یک لمس آن را علامت بزنید و تداوم زنجیره خود را حفظ نمایید.',
         },
         {
           step: '۰۵',
-          title: 'بررسی کارنامه و نمودارهای رشد',
-          desc: 'در پایان هفته، گزارش روند ۶ ماهه و ساعات مطالعه خود را در تب تحلیل مشاهده و بهینه‌سازی کنید.',
+          title: 'تحلیل داده‌ها و رشد مستمر',
+          desc: 'در پایان هفته، نمودارهای مطالعه و نرخ تکمیل کارها را بررسی کنید و برنامه‌ریزی هفته بعد را بهبود دهید.',
         },
       ],
     },
-    preview: {
-      badge: 'طراحی رابط کاربری مدرن',
-      title: 'پیش‌نمایش بخش‌های Emerald Life',
-      subtitle: 'نگاهی به بخش‌های گوناگون اپلیکیشن که با دقت و ظرافت بالا برای سیستم‌عامل اندروید پیاده شده است.',
-      tabs: [
-        {
-          id: 'home',
-          label: 'داشبورد اصلی',
-          title: 'صفحه اصلی (Home Overview)',
-          desc: 'مشاهده سریع وضعیت تسک‌های امروز، عادت‌های پیش‌رو، میانگین ساعات مطالعه و نقل‌قول‌های انگیزشی.',
-          metrics: [
-            { label: 'وضعیت روزانه', value: 'خلاصه پویا' },
-            { label: 'تقویم جاری', value: 'خورشیدی/میلادی' },
-            { label: 'تمرکز روز', value: 'دسترسی سریع' },
-          ],
-        },
-        {
-          id: 'tasks',
-          label: 'وظایف و تسک‌ها',
-          title: 'لیست تعاملی تسک‌ها (Tasks)',
-          desc: 'فیلتر سریع کارهای جاری و انجام‌شده با رنگ‌بندی اولویت‌های کاری و تیک زدن آسان پس از اتمام.',
-          metrics: [
-            { label: 'دسته‌بندی', value: 'بر اساس اولویت' },
-            { label: 'ثبت جزئیات', value: 'یادداشت‌دار' },
-            { label: 'مرتب‌سازی', value: 'بر اساس تاریخ' },
-          ],
-        },
-        {
-          id: 'habits',
-          label: 'زنجیره عادت‌ها',
-          title: 'ردیاب پایدار عادت‌ها (Habits Tracker)',
-          desc: 'نمایش خط استمرار روزانه با تقویم لمسی و انیمیشن موفقیت برای تقویت پیوستگی رفتارهای مثبت.',
-          metrics: [
-            { label: 'Streak Counter', value: 'زنجیره فعال' },
-            { label: 'ثبت آسان', value: 'تک‌لمسی' },
-            { label: 'پایش روند', value: 'آرشیو ۳۰ روزه' },
-          ],
-        },
-        {
-          id: 'schedule',
-          label: 'جدول برنامه‌ها',
-          title: 'تقویم و برنامه‌ریزی (Schedule)',
-          desc: 'مشاهده رویدادها، کلاس‌ها و برنامه‌های اختصاصی هر روز در ساختاری تمیز و بدون شلوغی.',
-          metrics: [
-            { label: 'رویدادها', value: 'برنامه ساعتی' },
-            { label: 'هماهنگی', value: 'بدون تداخل' },
-            { label: 'سررسیدها', value: 'یادآور بومی' },
-          ],
-        },
-        {
-          id: 'study',
-          label: 'جلسات مطالعه',
-          title: 'تایمر متمرکز یادگیری (Focus & Study)',
-          desc: 'ثبت زمان دقیق به همراه مشخص کردن مبحث آموزشی و کنترل وقفه‌ها و فواصل استراحت هوشمند.',
-          metrics: [
-            { label: 'تایمر هوشمند', value: 'دقیقه‌ای' },
-            { label: 'لاگ مباحث', value: 'تفکیک دروس' },
-            { label: 'آلارم پایان', value: 'هشدار صوتی' },
-          ],
-        },
-        {
-          id: 'analytics',
-          label: 'نمودار و آمار',
-          title: 'کارنامه و گراف‌های تحلیلی (Analytics)',
-          desc: 'نمودارهای ستونی مقایسه ساعات مطالعه هفتگی و ماهیانه به همراه پایش نسبت موفقیت در تسک‌ها.',
-          metrics: [
-            { label: 'افق دید', value: '۶ ماهه' },
-            { label: 'تفکیک مطالعه', value: 'ساعتی/روزانه' },
-            { label: 'محاسبه بومی', value: 'بدون سرور' },
-          ],
-        },
-        {
-          id: 'settings',
-          label: 'تنظیمات شخصی',
-          title: 'سفارشی‌سازی ظاهر و عملکرد (Settings)',
-          desc: 'سوئیچ تم تاریک Ultra Dark، تغییر زبان، تنظیمات زنگ هشدار و انتخاب از بین ۳۰ پالت رنگی جذاب.',
-          metrics: [
-            { label: 'حالت تاریک', value: 'OLED / Dark' },
-            { label: 'رنگ سازمانی', value: '۳۰ رنگ' },
-            { label: 'زبان‌ها', value: 'فارسی / انگلیسی' },
-          ],
-        },
-      ],
-    },
-    benefits: {
-      badge: 'ارزش‌های کلیدی محصول',
-      title: 'چرا کاربران Emerald Life را برمی‌گزینند؟',
-      subtitle: 'تمرکز بر تجربه کاربری مستقل، حریم خصوصی مطلق داده‌ها و ابزارهای منسجم در یک برنامه.',
+    values: {
+      badge: 'ارزش‌های کلیدی ما',
+      title: 'اصول بنیادین در طراحی Emerald Life',
+      subtitle:
+        'پنج ارزش محوری که زیربنای تصمیم‌گیری‌ها در توسعه و تجربه کاربری اپلیکیشن هستند.',
       items: [
         {
-          title: 'انضباط فردی و سازماندهی بدون پراکندگی',
-          desc: 'به جای استفاده همزمان از چند برنامه مجزا برای تسک، عادت، تایمر و تقویم، همه چیز در یک محیط یکپارچه مدیریت می‌شود.',
+          title: 'سادگی و وضوح (Simplicity)',
+          desc: 'رابط کاربری مینیمال، بی‌آلایش و بدون گزینه‌های گیج‌کننده تا کاربر بدون اتلاف وقت مستقیم به کار اصلی خود برسد.',
+          tag: 'اصل اول',
         },
         {
-          title: 'حفظ ۱۰۰٪ حریم خصوصی با معماری Local-first',
-          desc: 'کلیه اطلاعات، ساعات مطالعه و برنامه‌های شخصی شما فقط در حافظه امن گوشی و در پایگاه‌داده SQLite محلی ذخیره می‌شود.',
+          title: 'نظم و انسجام (Organization)',
+          desc: 'سازماندهی منطقی تسک‌ها، رویدادها و عادات در یک ساختار منسجم برای رفع پراکندگی و بار ذهنی روزمره.',
+          tag: 'اصل دوم',
         },
         {
-          title: 'برنامه‌ریزی دقیق و مطالعه نتیجه‌محور',
-          desc: 'با ثبت جلسات یادگیری و استفاده از تایمرهای تمرکز، زمان‌های پرت کاهش یافته و کیفیت ساعات مطالعه بالا می‌رود.',
+          title: 'استمرار و انضباط (Consistency)',
+          desc: 'پیوستگی رفتارها مهم‌تر از تلاش‌های مقطعی است. با زنجیره عادت‌ها و یادآورها، نظم شخصی به سبک زندگی تبدیل می‌شود.',
+          tag: 'ستون محوری',
         },
         {
-          title: 'بینش واقعی و واقع‌بینانه از پیشرفت',
-          desc: 'نمودارهای آماری دقیق به شما کمک می‌کنند تا نقاط قوت و افت‌های هفتگی خود را با داده‌های واقعی شناسایی کنید.',
+          title: 'بهره‌وری هدفمند (Productivity)',
+          desc: 'ارائه ابزارهای متمرکز مانند تایمر پومودورو جهت دستیابی به بالاترین کیفیت مطالعه بدون فرسودگی ذهنی.',
+          tag: 'اصل سوم',
         },
         {
-          title: 'شخصی‌سازی عمیق با سلیقه شما',
-          desc: 'با وجود تم تاریک مخصوص نمایشگرهای اولد و پالت‌های رنگی متنوع، محیط کاری کاملاً مطابق با ترجیح بصری شما شکل می‌گیرد.',
-        },
-        {
-          title: 'استقلال کامل از اتصال اینترنت',
-          desc: 'تمامی بخش‌ها، تایمرها، آمارها و اعلان‌ها در شرایط آفلاین و بدون هیچ اختلالی کار می‌کنند.',
+          title: 'رشد و پیشرفت فردی (Personal Growth)',
+          desc: 'ارائه بازخورد شفاف و واقع‌بینانه از زمان‌های صرف‌شده تا فرد گام‌به‌گام به نسخه منظم‌تر و توانمندتر خود تبدیل شود.',
+          tag: 'اصل چهارم',
         },
       ],
     },
     faq: {
       badge: 'پاسخ به ابهامات متداول',
       title: 'پرسش‌های پرتکرار کاربران',
-      subtitle: 'شفافیت کامل پیرامون قابلیت‌ها، سیستم‌عامل‌ها، روش دانلود و خط‌مشی‌های Emerald Life.',
+      subtitle: 'شفافیت کامل پیرامون قابلیت‌ها، سیستم‌عامل، امنیت و نحوه عملکرد Emerald Life.',
       items: [
         {
           q: 'اپلیکیشن Emerald Life دقیقاً چیست و چه کمکی می‌کند؟',
           a: 'Emerald Life یک سیستم جامع مدیریت زندگی و مطالعه برای اندروید است که ابزارهای مدیریت وظایف، ردیابی عادت‌ها، تقویم و برنامه‌ها، تایمر تمرکز مطالعه و نمودارهای تحلیلی را در یک محیط زیبا و سبک گرد هم آورده است.',
         },
         {
-          q: 'Emerald Life برای چه سیستم‌عامل‌هایی منتشر شده است؟',
-          a: 'این اپلیکیشن در حال حاضر به صورت اختصاصی برای سیستم‌عامل Android توسعه داده شده است. نسخه‌ای برای iOS، ویندوز یا وب وجود ندارد و تمرکز تیم بر روی تجربه بهینه کاربری در اندروید است.',
+          q: 'Emerald Life برای چه پلتفرمی توسعه داده شده است؟',
+          a: 'این اپلیکیشن به صورت اختصاصی برای سیستم‌عامل Android طراحی شده و تمرکز تیم بر روی تجربه بهینه، روان و سازگار با گوشی‌های اندرویدی است.',
         },
         {
-          q: 'چگونه می‌توان اپلیکیشن را دریافت و نصب کرد؟',
-          a: 'شما می‌توانید فایل رسمی نصب مستقیم (APK) را از بخش دانلود همین وب‌سایت دریافت کنید. همچنین نسخه‌های پایدار به مرور در استورهای رسمی اندروید قرار خواهند گرفت.',
+          q: 'آیا اطلاعات من روی سرور ابری ذخیره می‌شود؟',
+          a: 'خیر؛ معماری برنامه به صورت ۱۰۰٪ محلی (Local-first) است. داده‌های شما تنها در پایگاه‌داده امن داخلی دستگاه خودتان ذخیره می‌شود و حریم خصوصی شما کاملاً محفوظ است.',
         },
         {
-          q: 'آیا برای استفاده از برنامه نیاز به اینترنت و ساخت اکانت است؟',
-          a: 'خیر؛ معماری برنامه Local-first است. یعنی تمام امکانات و داده‌ها به صورت محلی در دستگاه شما قرار می‌گیرند و بدون اتصال اینترنت و بدون نیاز به ورود اجباری کار می‌کنند.',
+          q: 'آیا برای استفاده نیاز به اتصال دائمی اینترنت است؟',
+          a: 'خیر؛ تمامی امکانات برنامه اعم از ثبت تسک‌ها، ردیاب عادت‌ها، تقویم و تایمر تمرکز به صورت کاملاً آفلاین و بدون نیاز به اینترنت کار می‌کنند.',
         },
         {
           q: 'آیا تقویم شمسی و زبان فارسی پشتیبانی می‌شود؟',
-          a: 'بله؛ اپلیکیشن به صورت کامل و استاندارد از تقویم خورشیدی (جلالی)، میلادی، زبان فارسی با فونت وزیرمتن و همچنین زبان انگلیسی پشتیبانی می‌کند.',
+          a: 'بله؛ اپلیکیشن به صورت کامل از زبان فارسی با فونت استاندارد وزیرمتن و همچنین زبان انگلیسی و تاریخ‌های مربوطه پشتیبانی می‌کند.',
         },
         {
-          q: 'آیا می‌توان اعلانات و یادآورها را شخصی‌سازی کرد؟',
-          a: 'بله؛ شما می‌توانید یادآورهای مستقل برای سررسید تسک‌ها، زمان ثبت عادت‌ها، و آلارم‌های صوتی پایان بازه تمرکز و استراحت را با دقت دقیقه تنظیم نمایید.',
+          q: 'تایمر مطالعه چه امکاناتی دارد؟',
+          a: 'تایمر مطالعه شامل شمارش معکوس متمرکز بر مبنای تکنیک پومودورو، امکان تعیین فواصل استراحت، زمان‌سنج باز (Stopwatch) و آلارم‌های صوتی هشدار پایان است.',
         },
         {
-          q: 'آیا حالت تاریک (Dark Mode) در دسترس است؟',
-          a: 'بله؛ علاوه بر تم روشن، حالت تاریک استاندارد و همچنین حالت Ultra Dark (مشکی مطلق ویژه نمایشگرهای OLED برای صرفه‌جویی باتری) در بخش تنظیمات در دسترس است.',
+          q: 'آیا تم تاریک برای صرفه‌جویی باتری در دسترس است؟',
+          a: 'بله؛ علاوه بر تم روشن، حالت تاریک مخصوص با زمینه مشکی خالص طراحی شده که در نمایشگرهای AMOLED مصرف باتری را به حداقل می‌رساند.',
         },
         {
-          q: 'آیا اطلاعات من به سرورهای خارجی ارسال می‌شود؟',
-          a: 'خیر؛ حریم خصوصی خط قرمز پروژه است. داده‌های برنامه‌ها و ساعات مطالعه شما هرگز بدون رضایت یا به سرورهای واسطه ارسال نمی‌شوند.',
+          q: 'چگونه می‌توان با تیم توسعه در تماس بود؟',
+          a: 'شما می‌توانید از طریق فرم تماس در انتهای همین صفحه پیام، پیشنهاد یا بازخورد خود را ارسال کنید تا مستقیماً به ایمیل توسعه‌دهنده منتقل شود.',
         },
       ],
-    },
-    download: {
-      badge: 'دریافت مستقیم و رسمی',
-      title: 'Emerald Life را روی اندروید تجربه کنید',
-      subtitle: 'نسخه رسمی و تاییدشده را دانلود کنید و سبک زندگی و مطالعه خود را هوشمندانه متحول سازید.',
-      apkBtn: 'دانلود مستقیم فایل APK',
-      versionInfo: 'نسخه رسمی: 1.0.0 (پایدار)',
-      sizeInfo: 'حجم فایل: حدود ۶۷ مگابایت',
-      instructionsTitle: 'راهنمای نصب سریع روی اندروید:',
-      instructions: [
-        'روی دکمه دانلود کلیک کنید تا فایل emerald-life.apk دریافت شود.',
-        'پس از اتمام دانلود، روی اعلان یا فایل دانلود شده کلیک نمایید.',
-        'در صورت درخواست سیستم، مجوز Install unknown apps را برای مرورگر خود موقتاً فعال کنید.',
-        'روی Install بزنید و اپلیکیشن را اجرا نمایید.',
-      ],
-      notice: 'نیازمند سیستم‌عامل اندروید ۷.۰ و بالاتر • تست‌شده و امن',
     },
     authModal: {
       title: 'ورود به حساب کاربری',
@@ -517,6 +456,10 @@ export const translations: Record<Language, TranslationSchema> = {
       badge: 'ارتباط مستقیم و پشتیبانی',
       title: 'با تیم توسعه در ارتباط باشید',
       subtitle: 'نظرات، پیشنهادات، گزارش خطاها یا ایده‌های ارزشمند خود درباره Emerald Life را برای ما بفرستید.',
+      firstNameLabel: 'نام',
+      firstNamePlaceholder: 'مثال: علی',
+      lastNameLabel: 'نام خانوادگی',
+      lastNamePlaceholder: 'مثال: رضایی',
       nameLabel: 'نام و نام خانوادگی',
       namePlaceholder: 'مثال: علی رضایی',
       emailLabel: 'نشانی ایمیل معتبر',
@@ -528,6 +471,12 @@ export const translations: Record<Language, TranslationSchema> = {
       submitBtn: 'ارسال امن پیام',
       submittingBtn: 'در حال ارسال پیام...',
       validationErrors: {
+        firstNameRequired: 'لطفاً نام خود را وارد کنید.',
+        firstNameMin: 'نام باید حداقل ۲ حرف داشته باشد.',
+        firstNameMax: 'نام نباید بیشتر از ۴۰ کاراکتر باشد.',
+        lastNameRequired: 'لطفاً نام خانوادگی خود را وارد کنید.',
+        lastNameMin: 'نام خانوادگی باید حداقل ۲ حرف داشته باشد.',
+        lastNameMax: 'نام خانوادگی نباید بیشتر از ۴۰ کاراکتر باشد.',
         nameRequired: 'لطفاً نام خود را وارد کنید.',
         nameMin: 'نام باید حداقل ۲ حرف داشته باشد.',
         nameMax: 'نام نباید بیشتر از ۸۰ کاراکتر باشد.',
@@ -578,7 +527,7 @@ export const translations: Record<Language, TranslationSchema> = {
         },
         {
           heading: '۲. اطلاعات فرم تماس وب‌سایت',
-          body: 'هنگامی که از طریق فرم تماس این وب‌سایت پیامی ارسال می‌کنید، صرفاً نام، ایمیل، موضوع و متن پیام شما جهت پاسخگویی به ایمیل رسمی توسعه‌دهنده ارسال می‌شود و در پایگاه‌های بازاریابی شخص ثالث ذخیره نمی‌گردد.',
+          body: 'هنگامی که از طریق فرم تماس این وب‌سایت پیامی ارسال می‌کنید، نام، نام خانوادگی، ایمیل، موضوع و متن پیام شما جهت پاسخگویی به ایمیل رسمی توسعه‌دهنده ارسال می‌شود و در پایگاه‌های بازاریابی شخص ثالث ذخیره نمی‌گردد.',
         },
         {
           heading: '۳. احراز هویت با گوگل (Google Sign-In)',
@@ -600,11 +549,11 @@ export const translations: Record<Language, TranslationSchema> = {
         },
         {
           heading: '۲. مالکیت معنوی و حق نشر',
-          body: 'نام تجاری Emerald Life، نشان‌های گرافیکی، کدهای برنامه و طراحی‌های موجود متعلق به توسعه‌دهنده بوده و هرگونه بازنشر بدون مجوز یا دستکاری در بسته نصبی ممنوع است.',
+          body: 'نام تجاری Emerald Life، نشان‌های گرافیکی، کدهای برنامه و طراحی‌های موجود متعلق به توسعه‌دهنده بوده و هرگونه بازنشر بدون مجوز ممنوع است.',
         },
         {
           heading: '۳. توزیع و دریافت نرم‌افزار',
-          body: 'توصیه اکید می‌شود فایل نصب APK را تنها از طریق این وب‌سایت رسمی یا مارکت‌های معتبر دریافت کنید تا از اصالت و امنیت بسته نصبی اطمینان حاصل شود.',
+          body: 'توصیه می‌شود برنامه را تنها از مراجع رسمی معرفی‌شده دریافت کنید تا از اصالت و امنیت بسته نرم‌افزاری اطمینان حاصل شود.',
         },
         {
           heading: '۴. سلب مسئولیت ادعاهای غیرواقعی',
@@ -617,363 +566,312 @@ export const translations: Record<Language, TranslationSchema> = {
     nav: {
       home: 'Home',
       features: 'Features',
+      screenshots: 'Screenshots',
       howItWorks: 'How It Works',
-      preview: 'App Preview',
-      benefits: 'Benefits',
+      values: 'Our Key Values',
       faq: 'FAQ',
-      contact: 'Contact',
+      contact: 'Contact Us',
       downloadApp: 'Download App',
       account: 'Account',
       signOut: 'Sign Out',
-      themeToggle: 'Toggle Theme (Light / Dark)',
+      themeToggle: 'Toggle Theme',
       langToggle: 'فارسی',
-      menuOpen: 'Open menu',
-      menuClose: 'Close menu',
+      menuOpen: 'Open Menu',
+      menuClose: 'Close Menu',
     },
     hero: {
-      badge: 'Comprehensive Life & Study Management for Android',
+      badge: 'Comprehensive Life & Study Management App for Android',
       title: 'Take Control of Your Life.',
       titleHighlight: 'Make Every Day Count.',
       subtitle:
-        'Emerald Life is an elegant, local-first Android application designed to help you organize daily tasks, build lasting habits, schedule study sessions, and monitor productivity with crystal-clear analytics.',
-      downloadBtn: 'Download for Android',
-      exploreBtn: 'Explore Features',
-      platformNotice: 'Developed exclusively for Android • 100% Local-First & Cloud-Free',
+        'Emerald Life is a local-first Android companion designed to organize daily tasks, sustain healthy habits, schedule your days, focus with study timers, and reflect on genuine personal productivity.',
+      exploreBtn: 'Explore App Features',
+      screenshotsBtn: 'View App Interface',
+      platformNotice: 'Built Exclusively for Android • 100% Local-First Data Storage',
       stats: {
-        tasksLabel: 'Task Priority',
-        tasksSub: 'Dynamic hierarchy & tracking',
-        habitsLabel: 'Habit Streaks',
-        habitsSub: 'Consistency & daily routines',
-        studyLabel: 'Study Focus',
-        studySub: 'Integrated timer & session logs',
+        tasksLabel: 'Task Management',
+        tasksSub: 'Categorized priority lists',
+        habitsLabel: 'Habit Tracker',
+        habitsSub: 'Streak counter & goals',
+        studyLabel: 'Study Timer',
+        studySub: 'Deep focus with Pomodoro',
       },
     },
     features: {
-      badge: 'Genuine Capabilities',
-      title: 'A Complete System, Zero Clutter',
+      badge: 'Real Application Features',
+      title: 'Comprehensive, Unified Tools in One Clean Experience',
       subtitle:
-        'Every Emerald Life module is built around local data security and genuine learning and productivity workflows.',
+        'All the essentials you need to streamline daily life and study sessions—fast, offline, and distraction-free.',
       items: [
         {
           id: 'tasks',
           title: 'Task Management',
-          desc: 'Create, organize, and prioritize daily tasks with clear deadlines and completion tracking to maintain structured momentum.',
+          desc: 'Create and organize tasks with subject categories, deadlines, and quick completion tracking.',
           tag: 'Organization',
           bullets: [
-            'Create tasks with contextual notes and details',
-            'Configurable priority levels: High, Medium, Low',
-            'Smart filtering by completion status and due date',
-            'Smooth daily progress checkoffs',
+            'Categorize by study subjects, personal goals, and exams',
+            'Assign urgent and normal priorities',
+            'Instant check-off and clean completion archive',
           ],
         },
         {
           id: 'habits',
-          title: 'Habit Management',
-          desc: 'Build positive routines, track daily completion consistency, and turn small actions into lasting habits.',
-          tag: 'Personal Growth',
+          title: 'Habit Tracking',
+          desc: 'Build positive daily routines with automatic streak counting, goal frequencies, and progress feedback.',
+          tag: 'Consistency',
           bullets: [
-            'Track daily, weekly, and interval habits',
-            'Live streak calculations & consistency monitoring',
-            'Single-tap daily habit completion checkoff',
-            'Long-term consistency trend visibility',
+            'Automatic streak tracking for consecutive days',
+            'Customizable icons and color indicators per habit',
+            'Weekly and monthly completion overview',
           ],
         },
         {
           id: 'schedule',
-          title: 'Schedule & Programs',
-          desc: 'Organize your daily schedule, track upcoming milestones, and prevent conflicts between study and personal life.',
-          tag: 'Time Management',
+          title: 'Schedule Management',
+          desc: 'Keep classes, study blocks, and personal appointments organized across a structured weekly calendar.',
+          tag: 'Time Planning',
           bullets: [
-            'Dual Solar Hijri (Jalali) and Gregorian calendar support',
-            'Clean daily timeline overview at a glance',
-            'Avoid scheduling overlaps between classes and tasks',
-            'Plan exams, routines, and important events cleanly',
+            'Horizontal week calendar navigation',
+            'Color-coded timeline blocks for classes and events',
+            'Clean daily timeline without clutter',
           ],
         },
         {
-          id: 'study',
-          title: 'Study Sessions & Timer',
-          desc: 'Dedicated study companion featuring focus timers, subject categorization, and detailed session logging.',
-          tag: 'Student Focus',
+          id: 'timer',
+          title: 'Focus Timer & Study Sessions',
+          desc: '25-minute Pomodoro focus timer with smart short and long break intervals to maximize retention.',
+          tag: 'Deep Focus',
           bullets: [
-            'Precision focus timer with customizable break intervals',
-            'Categorize sessions by subject, textbook, and topics',
-            'Comprehensive historical log of all study sessions',
-            'Audible chime notifications on interval completion',
+            'Countdown, open stopwatch, and interval timer modes',
+            'Audio alerts signaling start and break periods',
+            'Direct on-device study session history',
           ],
         },
         {
           id: 'analytics',
-          title: 'Analytics & Statistics',
-          desc: 'Visualize your daily, weekly, monthly, and 6-month productivity trends to understand your study habits and output.',
-          tag: 'Data Insights',
+          title: 'Progress Analytics',
+          desc: 'Visual metrics illustrating your study hours, task completion ratio, and habit consistency over time.',
+          tag: 'Insight',
           bullets: [
-            'Daily and weekly completion percentages',
-            'Comparative weekly study hours bar charts',
-            '6-month long-term progression analysis',
-            '100% locally calculated without remote dependencies',
+            'Weekly and monthly study duration charts',
+            'Completed vs pending task success rates',
+            '100% local calculation without external cloud telemetry',
           ],
         },
         {
           id: 'notifications',
-          title: 'Intelligent Reminders',
-          desc: 'Native Android notifications alerting you to task deadlines, habit check-ins, and study session intervals.',
-          tag: 'Timely Alerts',
+          title: 'Local Notifications',
+          desc: 'Timely reminders for impending task deadlines, habit check-ins, and study break intervals.',
+          tag: 'Discipline',
           bullets: [
-            'Battery-efficient local notification dispatch',
-            'Alerts on session completion and rest cycles',
-            'Customizable sound and alert schedules',
-            'Zero server downtime: runs completely locally',
+            'Customizable reminder time per task or habit',
+            'Functions reliably without internet connectivity',
+            'Selectable audio chime alerts',
           ],
         },
         {
           id: 'personalization',
           title: 'Personalization & Themes',
-          desc: 'Comfortable light and dark themes, pure OLED black mode, customizable accent colors, and dual-language preferences.',
-          tag: 'Tailored UX',
+          desc: 'Support for dark OLED mode to save battery life, along with tailored color themes.',
+          tag: 'Flexibility',
           bullets: [
-            'Support for Light, Dark, and Ultra Dark (OLED)',
-            'Over 30 vibrant accent color palettes',
-            'Instant toggle between Jalali and Gregorian calendars',
-            'Full bilingual Persian and English support',
+            'Pure black Ultra Dark OLED theme and standard light theme',
+            'Full support for English LTR and Persian RTL layouts',
+            'Customizable category colors and cards',
           ],
+        },
+      ],
+    },
+    screenshots: {
+      badge: 'Actual App Screenshots',
+      title: 'Explore the Real Emerald Life Interface',
+      subtitle:
+        'Authentic screenshots captured directly from our running Android application showcasing real screens and features.',
+      items: [
+        {
+          id: 'home',
+          title: 'Dashboard Overview (Home)',
+          desc: 'Unified daily command center showing pending tasks, habit consistency, today’s schedule, and overall daily progress bar.',
+          image: '/images/home.jpg',
+          tag: 'Dashboard',
+        },
+        {
+          id: 'schedule',
+          title: 'Weekly Schedule (Calendar)',
+          desc: 'Weekly timeline calendar featuring horizontal day selector, color-coded class hours, and organized daily events.',
+          image: '/images/schdule.jpg',
+          tag: 'Schedule',
+        },
+        {
+          id: 'tasks',
+          title: 'Task Management (My Tasks)',
+          desc: 'Prioritized list of tasks with subject tags (Study, Exam), checkmarks, and one-tap completion controls.',
+          image: '/images/task.jpg',
+          tag: 'Tasks',
+        },
+        {
+          id: 'habits',
+          title: 'Habit Tracker (Habits)',
+          desc: 'Daily routine cards with individual icons, consecutive streak counters, and daily completion toggle.',
+          image: '/images/habit.jpg',
+          tag: 'Habits',
+        },
+        {
+          id: 'timer',
+          title: 'Focus Study Timer (Pomodoro)',
+          desc: '25:00 circular focus timer based on Pomodoro technique with break controls, countdown mode, and stopwatch.',
+          image: '/images/timer.jpg',
+          tag: 'Focus Timer',
         },
       ],
     },
     howItWorks: {
-      badge: 'Simple Setup',
+      badge: 'Step-by-Step Path',
       title: 'How Emerald Life Powers Your Day',
-      subtitle: 'Five practical steps to take charge of your tasks, habits, and academic milestones.',
+      subtitle:
+        'Five straightforward steps to eliminate chaos, build structured daily routines, and enhance study quality.',
       steps: [
         {
           step: '01',
-          title: 'Set Up Your Workspace',
-          desc: 'Select your preferred language, calendar format, and visual theme upon launching.',
+          title: 'Record Tasks & Commitments',
+          desc: 'Add your study tasks and daily responsibilities with specific dates and topics to clear your mental bandwidth.',
         },
         {
           step: '02',
-          title: 'Organize Tasks & Schedules',
-          desc: 'Add your study assignments and daily responsibilities with custom priorities and dates.',
+          title: 'Set Daily Habits',
+          desc: 'Define simple yet high-impact habits like reading, working out, or vocabulary review with weekly goals.',
         },
         {
           step: '03',
-          title: 'Build & Track Daily Habits',
-          desc: 'Set up habits you want to cultivate and check them off daily to build unbreakable streaks.',
+          title: 'Start Deep Focus Sessions',
+          desc: 'Activate the 25-minute Pomodoro timer whenever studying or doing deep work to maintain sustained concentration.',
         },
         {
           step: '04',
-          title: 'Run Focused Study Sessions',
-          desc: 'Launch the focus timer, choose your topic, and log exact study hours with built-in breaks.',
+          title: 'Track Routine Streaks',
+          desc: 'Check off habits and tasks as you complete them throughout the day, reinforcing your consistency streak.',
         },
         {
           step: '05',
-          title: 'Review Insights & Optimize',
-          desc: 'Inspect weekly and 6-month analytics to discover your peak productive hours and adjust routines.',
+          title: 'Review Insights & Grow',
+          desc: 'Examine weekly analytics to spot patterns, recognize productivity peaks, and fine-tune your schedule.',
         },
       ],
     },
-    preview: {
-      badge: 'Visual Experience',
-      title: 'Explore the Emerald Life Interface',
-      subtitle: 'A clean, high-contrast mobile interface crafted specifically for focused productivity on Android.',
-      tabs: [
-        {
-          id: 'home',
-          label: 'Home Dashboard',
-          title: 'Home Overview Screen',
-          desc: 'Instant view of today’s tasks, upcoming habits, study hour metrics, and personalized daily greeting.',
-          metrics: [
-            { label: 'Daily Status', value: 'Live Digest' },
-            { label: 'Calendar', value: 'Jalali/Gregorian' },
-            { label: 'Quick Focus', value: 'Single Tap' },
-          ],
-        },
-        {
-          id: 'tasks',
-          label: 'Task Manager',
-          title: 'Interactive Task Management',
-          desc: 'Filter easily between pending and completed tasks with color-coded priority flags and deadlines.',
-          metrics: [
-            { label: 'Priorities', value: 'High/Med/Low' },
-            { label: 'Task Notes', value: 'Detailed' },
-            { label: 'Ordering', value: 'Chronological' },
-          ],
-        },
-        {
-          id: 'habits',
-          label: 'Habit Tracker',
-          title: 'Habit Consistency & Streaks',
-          desc: 'Visual consistency chain with streak counters and satisfaction haptics on daily completion.',
-          metrics: [
-            { label: 'Streak Tracker', value: 'Active Counter' },
-            { label: 'Ease of Use', value: '1-Tap Log' },
-            { label: 'Retention', value: '30-Day View' },
-          ],
-        },
-        {
-          id: 'schedule',
-          label: 'Schedule & Calendar',
-          title: 'Event & Program Planner',
-          desc: 'Organize your classes, study hours, and milestones without clutter or overlapping commitments.',
-          metrics: [
-            { label: 'Timeline', value: 'Hourly Flow' },
-            { label: 'Overlap Check', value: 'Zero Conflict' },
-            { label: 'Reminders', value: 'Native Alert' },
-          ],
-        },
-        {
-          id: 'study',
-          label: 'Study Focus Timer',
-          title: 'Focused Study Companion',
-          desc: 'Dedicated session timer tracking effective study time, breaks, and subject-specific history.',
-          metrics: [
-            { label: 'Focus Clock', value: 'Interval Based' },
-            { label: 'Subjects', value: 'Categorized' },
-            { label: 'Completion', value: 'Audio Chime' },
-          ],
-        },
-        {
-          id: 'analytics',
-          label: 'Analytics & Insights',
-          title: 'Long-Term Performance Metrics',
-          desc: 'Detailed bar charts, task completion ratios, and 6-month progress trajectories.',
-          metrics: [
-            { label: 'Time Horizon', value: '6 Months' },
-            { label: 'Chart Types', value: 'Weekly/Monthly' },
-            { label: 'Processing', value: '100% Offline' },
-          ],
-        },
-        {
-          id: 'settings',
-          label: 'Customization',
-          title: 'Themes & Preferences',
-          desc: 'Switch between Light, Dark, and OLED Ultra Dark, adjust notification sounds, and choose from 30 colors.',
-          metrics: [
-            { label: 'Dark Mode', value: 'OLED Black' },
-            { label: 'Palettes', value: '30 Options' },
-            { label: 'Languages', value: 'EN / FA' },
-          ],
-        },
-      ],
-    },
-    benefits: {
-      badge: 'Core Value',
-      title: 'Why Students & Creators Rely on Emerald Life',
-      subtitle: 'Uncompromising privacy, zero clutter, and all your productivity essentials in one unified app.',
+    values: {
+      badge: 'Our Key Values',
+      title: 'Foundational Pillars of Emerald Life',
+      subtitle:
+        'Five core values guiding the design, architecture, and user experience of our application.',
       items: [
         {
-          title: 'All-In-One Unified Ecosystem',
-          desc: 'Stop juggling four separate apps for tasks, habit tracking, focus timers, and schedules. Everything is seamlessly integrated.',
+          title: 'Simplicity & Clarity',
+          desc: 'Minimalist, distraction-free interface design ensuring your attention stays directly on your goals and studies.',
+          tag: 'Core Value 1',
         },
         {
-          title: '100% Local-First Privacy',
-          desc: 'Your study notes, personal habits, and daily plans stay solely on your Android device in a secure SQLite database.',
+          title: 'Structure & Organization',
+          desc: 'Harmonious integration of tasks, calendar events, and habits to eliminate mental friction and daily clutter.',
+          tag: 'Core Value 2',
         },
         {
-          title: 'Structured, Result-Driven Learning',
-          desc: 'Keep track of real study hours and study topics to eliminate procrastination and boost academic retention.',
+          title: 'Consistency & Discipline',
+          desc: 'Daily consistency is far more powerful than sporadic bursts. We celebrate steady progress through habit streaks.',
+          tag: 'Center Anchor',
         },
         {
-          title: 'Honest, Objective Productivity Data',
-          desc: 'Understand your true weekly progress with transparent analytics rather than subjective feelings.',
+          title: 'Targeted Productivity',
+          desc: 'Purpose-built focus timers and interval pacing designed to maximize study output while preventing burnout.',
+          tag: 'Core Value 3',
         },
         {
-          title: 'Deep Ergonomic Personalization',
-          desc: 'Choose from 30+ accent colors and True OLED Dark Mode to customize an interface that inspires focus without eye strain.',
-        },
-        {
-          title: 'Uninterrupted Offline Independence',
-          desc: 'No login walls, no mandatory internet connections, and no cloud outages. Emerald Life works anytime, anywhere.',
+          title: 'Personal Growth',
+          desc: 'Transparent on-device feedback on study hours and habit adherence to nurture steady personal improvement.',
+          tag: 'Core Value 4',
         },
       ],
     },
     faq: {
-      badge: 'Transparent Answers',
-      title: 'Frequently Asked Questions',
-      subtitle: 'Clear, honest information regarding platforms, functionality, and downloading Emerald Life.',
+      badge: 'Frequently Asked Questions',
+      title: 'Common Questions & Answers',
+      subtitle: 'Complete clarity regarding Emerald Life features, Android compatibility, and privacy.',
       items: [
         {
-          q: 'What exactly is Emerald Life?',
-          a: 'Emerald Life is an all-in-one life and study management app for Android combining task organization, habit tracking, daily scheduling, study timers, and performance analytics into a clean, unified experience.',
+          q: 'What is Emerald Life and how does it help?',
+          a: 'Emerald Life is an integrated personal management and study OS for Android that brings together task management, habit tracking, scheduling, focus timers, and progress analytics into a clean, lightweight app.',
         },
         {
-          q: 'Which operating systems does Emerald Life support?',
-          a: 'Emerald Life is developed exclusively for Android. There are no iOS, desktop, or web editions, allowing us to deliver a deeply optimized Android experience.',
+          q: 'Which platform is Emerald Life developed for?',
+          a: 'Emerald Life is built exclusively for Android devices, optimized for responsive performance and native Android notifications.',
         },
         {
-          q: 'How can I download and install the application?',
-          a: 'You can download the verified release APK directly from the download section on this website. Stable releases will also be published to official Android distribution channels.',
+          q: 'Is my data uploaded to cloud servers?',
+          a: 'No. The app follows a strict local-first architecture. All your tasks, study logs, and habits remain strictly stored on your Android device’s local SQLite database.',
         },
         {
-          q: 'Does Emerald Life require an internet connection or account?',
-          a: 'No. The app is local-first. All your data stays privately stored on your phone’s internal storage, operating fully offline without compulsory account logins.',
+          q: 'Does Emerald Life work offline?',
+          a: 'Yes. Every module, including the calendar, task lists, habit streaks, and focus timer, works 100% offline without requiring internet access.',
         },
         {
-          q: 'Are both Jalali and Gregorian calendars supported?',
-          a: 'Yes. Emerald Life features comprehensive native support for both Persian Solar Hijri (Jalali) and Gregorian calendars, complete with dual Persian and English language support.',
+          q: 'Does it support dark mode for OLED screens?',
+          a: 'Yes. In addition to a clean light mode, Emerald Life features a true black OLED dark mode to maximize battery longevity during prolonged study sessions.',
         },
         {
-          q: 'Can I customize study timer intervals and notifications?',
-          a: 'Yes. Focus durations, short/long rest breaks, reminder times, and audible chime alerts can be fully configured in app settings.',
+          q: 'What modes are available in the Study Timer?',
+          a: 'The focus module includes a 25-minute countdown based on the Pomodoro technique, custom interval breaks, and a continuous stopwatch mode.',
         },
         {
-          q: 'Is dark mode supported?',
-          a: 'Yes. Emerald Life offers both a refined standard Dark Mode and an Ultra Dark (True Black) mode optimized for battery conservation on OLED screens.',
+          q: 'Does the application support multiple languages?',
+          a: 'Yes, Emerald Life fully supports Persian with authentic Vazirmatn typography and Gregorian/English layouts with responsive RTL and LTR support.',
         },
         {
-          q: 'Does the application send my personal data to external servers?',
-          a: 'No. User privacy is a non-negotiable principle. Your personal tasks, routines, and study records are stored in your device’s local SQLite database.',
+          q: 'How can I reach the development team?',
+          a: 'You can submit feedback, inquiries, or suggestions directly via the contact form on this website; your message is delivered securely to our official inbox.',
         },
       ],
-    },
-    download: {
-      badge: 'Official Release',
-      title: 'Experience Emerald Life on Android',
-      subtitle: 'Download the verified APK release to elevate your daily routines and study habits today.',
-      apkBtn: 'Download APK Release',
-      versionInfo: 'Official Version: 1.0.0 (Stable)',
-      sizeInfo: 'File Size: ~67 MB',
-      instructionsTitle: 'Quick Installation Steps for Android:',
-      instructions: [
-        'Tap the download button to save emerald-life.apk to your device.',
-        'Once downloaded, tap the notification or open the file from your Downloads folder.',
-        'If prompted by Android, temporarily grant permission to install from your browser.',
-        'Tap Install and launch Emerald Life to begin organizing your day.',
-      ],
-      notice: 'Requires Android 7.0 (Nougat) or higher • Verified & Clean',
     },
     authModal: {
-      title: 'Account Authentication',
-      subtitle: 'Connect with your Google account for feedback, updates, and community support.',
-      googleBtn: 'Continue with Google',
-      privacyNote: 'Authentication is securely processed via Google OAuth 2.0. We never access your Gmail password or private inbox.',
+      title: 'Account Sign In',
+      subtitle: 'Connect with your official Google account for support and feedback coordination.',
+      googleBtn: 'Sign In with Google',
+      privacyNote: 'Authentication is handled securely via Google OAuth 2.0. We never access your password.',
       close: 'Close Window',
-      userGreeting: 'Welcome',
+      userGreeting: 'Welcome back',
       userEmail: 'Account Email:',
-      statusActive: 'Active Account',
+      statusActive: 'Active Session',
     },
     contact: {
-      badge: 'Direct Support',
-      title: 'Connect with the Development Team',
-      subtitle: 'Share your feedback, bug reports, feature ideas, or questions regarding Emerald Life.',
+      badge: 'Direct Feedback & Support',
+      title: 'Get in Touch with the Team',
+      subtitle: 'Share your suggestions, feedback, error reports, or ideas regarding Emerald Life.',
+      firstNameLabel: 'First Name',
+      firstNamePlaceholder: 'e.g. John',
+      lastNameLabel: 'Last Name',
+      lastNamePlaceholder: 'e.g. Doe',
       nameLabel: 'Full Name',
-      namePlaceholder: 'e.g. Alex Morgan',
-      emailLabel: 'Email Address',
+      namePlaceholder: 'e.g. John Doe',
+      emailLabel: 'Valid Email Address',
       emailPlaceholder: 'name@example.com',
       subjectLabel: 'Subject',
-      subjectPlaceholder: 'Feature request, feedback, or inquiry...',
-      messageLabel: 'Your Message',
-      messagePlaceholder: 'Please share your thoughts, ideas, or feedback...',
-      submitBtn: 'Send Message Securely',
+      subjectPlaceholder: 'Feature request, feedback, or question...',
+      messageLabel: 'Message',
+      messagePlaceholder: 'Write your message, feedback, or suggestion here...',
+      submitBtn: 'Send Secure Message',
       submittingBtn: 'Sending Message...',
       validationErrors: {
+        firstNameRequired: 'Please enter your first name.',
+        firstNameMin: 'First name must be at least 2 characters.',
+        firstNameMax: 'First name must not exceed 40 characters.',
+        lastNameRequired: 'Please enter your last name.',
+        lastNameMin: 'Last name must be at least 2 characters.',
+        lastNameMax: 'Last name must not exceed 40 characters.',
         nameRequired: 'Please enter your name.',
         nameMin: 'Name must be at least 2 characters.',
         nameMax: 'Name must not exceed 80 characters.',
         emailRequired: 'Please enter your email address.',
-        emailInvalid: 'Please enter a valid email address.',
+        emailInvalid: 'Invalid email address format.',
         emailMax: 'Email must not exceed 120 characters.',
-        subjectRequired: 'Please provide a message subject.',
+        subjectRequired: 'Please enter a message subject.',
         subjectMin: 'Subject must be at least 3 characters.',
         subjectMax: 'Subject must not exceed 150 characters.',
         messageRequired: 'Please write your message.',
@@ -1017,7 +915,7 @@ export const translations: Record<Language, TranslationSchema> = {
         },
         {
           heading: '2. Website Contact Form Data',
-          body: 'When you submit a message through this website’s contact form, your name, email, subject, and message are transmitted directly to the developer’s inbox to respond to your inquiry and are never shared with marketing brokers.',
+          body: 'When you submit a message through this website’s contact form, your first name, last name, email, subject, and message are transmitted directly to the developer’s inbox to respond to your inquiry and are never shared with marketing brokers.',
         },
         {
           heading: '3. Google Sign-In Authentication',
@@ -1035,7 +933,7 @@ export const translations: Record<Language, TranslationSchema> = {
       sections: [
         {
           heading: '1. Acceptance of Terms',
-          body: 'By downloading or using Emerald Life and this website, you agree to these terms of service and commit to lawful, personal use of the software.',
+          body: 'By using Emerald Life and this website, you agree to these terms of service and commit to lawful, personal use of the software.',
         },
         {
           heading: '2. Intellectual Property',
@@ -1043,7 +941,7 @@ export const translations: Record<Language, TranslationSchema> = {
         },
         {
           heading: '3. Software Distribution',
-          body: 'We advise users to download the official APK directly from this official website or verified distribution stores to ensure integrity and security.',
+          body: 'We advise users to acquire the application only from verified, official sources to ensure authenticity and safety.',
         },
         {
           heading: '4. Disclaimer',

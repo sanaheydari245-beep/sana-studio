@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ==============================================================================
-   Local Vazirmatn Typography Integration (Variable WOFF2)
+   Local Vazirmatn Variable Font for Persian Typography
    ============================================================================== */
 @font-face {
   font-family: 'Vazirmatn';
@@ -13,21 +13,7 @@
   font-display: swap;
 }
 
-:root {
-  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-body,
-button,
-input,
-textarea,
-select {
-  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 @theme {
-  --font-sans: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
   /* Emerald Life - Premium Emerald Color Palette */
   --color-emerald-primary: #059669;        /* Vibrant Emerald */
   --color-emerald-primary-hover: #047857;  /* Deep Emerald Hover */
@@ -60,19 +46,34 @@ select {
 }
 
 @layer base {
-  html {
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    scroll-behavior: smooth;
-    overflow-x: hidden;
-  }
-
+  /* Default Typography Stack for English / LTR */
+  html,
   body {
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    scroll-behavior: smooth;
     overflow-x: hidden;
     max-width: 100%;
     background-color: #F8FAFC;
     color: #0F172A;
     transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Scoped Persian Typography: Exclusively applies Vazirmatn to Persian text */
+  html[lang="fa"],
+  html[lang="fa"] body,
+  html[dir="rtl"],
+  html[dir="rtl"] body,
+  :lang(fa) {
+    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Scoped English Typography: Preserves clean English font */
+  html[lang="en"],
+  html[lang="en"] body,
+  html[dir="ltr"],
+  html[dir="ltr"] body,
+  :lang(en) {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   button,
@@ -97,74 +98,78 @@ select {
       transition-duration: 0.01ms !important;
     }
   }
-
-  html[dir="rtl"],
-  html[dir="ltr"] {
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
 }
 
-/* Custom scrollbar with Emerald styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.35);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(5, 150, 105, 0.6);
+/* ==============================================================================
+   Glassmorphism & Emerald Glow Utilities
+   ============================================================================== */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(5, 150, 105, 0.12);
 }
 
-/* Unified Standard Responsive Container System */
+.dark .glass-surface {
+  background: rgba(11, 19, 16, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.18);
+}
+
+.glow-emerald {
+  background: radial-gradient(circle at 50% 30%, rgba(5, 150, 105, 0.18) 0%, rgba(5, 150, 105, 0.05) 50%, transparent 75%);
+}
+
+.dark .glow-emerald {
+  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.08) 55%, transparent 80%);
+}
+
 .site-container {
   width: 100%;
-  max-width: 1240px;
-  margin-inline: auto;
-  padding-inline: 1rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
 }
 
 @media (min-width: 640px) {
   .site-container {
-    padding-inline: 1.25rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .site-container {
-    padding-inline: 1.5rem;
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
   }
 }
 
 @media (min-width: 1024px) {
   .site-container {
-    padding-inline: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
-/* Glassmorphism with Emerald borders */
-.glass-surface {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(16, 185, 129, 0.16);
+/* Custom Scrollbar for modals and previews */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(5, 150, 105, 0.3);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 150, 105, 0.5);
 }
 
-.dark .glass-surface {
-  background: rgba(17, 29, 24, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(16, 185, 129, 0.22);
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Glow effects restricted to hero & select accents */
-.glow-emerald {
-  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.16) 0%, rgba(5, 150, 105, 0) 70%);
-}
-
-.dark .glow-emerald {
-  background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.22) 0%, rgba(11, 19, 16, 0) 72%);
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

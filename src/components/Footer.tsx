@@ -2,7 +2,7 @@ import React from 'react';
 import type { Language } from '../data/translations';
 import { translations } from '../data/translations';
 import { Logo } from './Logo';
-import { ArrowUp, Download, Smartphone, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ShieldCheck } from 'lucide-react';
 
 interface FooterProps {
   lang: Language;
@@ -42,21 +42,21 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="mb-4">
               <Logo size="md" />
             </div>
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-3">
+            <p className="text-sm sm:text-[15px] font-medium text-emerald-700 dark:text-emerald-400 mb-3">
               {t.tagline}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm mb-6">
+            <p className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm mb-6">
               {t.reserved}
             </p>
 
             {/* Language Switcher in Footer */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <span className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
                 {lang === 'fa' ? 'زبان وب‌سایت:' : 'Language:'}
               </span>
               <button
                 onClick={() => onLanguageChange('fa')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
                   lang === 'fa'
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                     : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({
               </button>
               <button
                 onClick={() => onLanguageChange('en')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`px-3 py-1.5 text-xs sm:text-[13px] font-semibold rounded-xl border transition-all ${
                   lang === 'en'
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                     : 'border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -77,18 +77,26 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* Quick Nav Links */}
-          <div className="lg:col-span-3">
+          {/* Quick Nav Links (14-15px) */}
+          <div className="lg:col-span-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4">
               {t.navTitle}
             </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm">
+            <ul className="space-y-2.5 text-sm sm:text-[15px]">
               <li>
                 <button
                   onClick={() => scrollTo('features')}
                   className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   {nav.features}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => scrollTo('screenshots')}
+                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                >
+                  {nav.screenshots}
                 </button>
               </li>
               <li>
@@ -101,26 +109,10 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => scrollTo('preview')}
+                  onClick={() => scrollTo('values')}
                   className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
-                  {nav.preview}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollTo('benefits')}
-                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                >
-                  {nav.benefits}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollTo('download')}
-                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                >
-                  {nav.downloadApp}
+                  {nav.values}
                 </button>
               </li>
               <li>
@@ -142,58 +134,40 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Legal & App Download Column */}
-          <div className="lg:col-span-4 space-y-5">
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
-                {t.legalTitle}
-              </h4>
-              <ul className="space-y-2.5 text-xs sm:text-sm">
-                <li>
-                  <button
-                    onClick={onOpenPrivacy}
-                    className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>{t.privacy}</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={onOpenTerms}
-                    className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
-                  >
-                    <span>{t.terms}</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Quick App Direct Download Pill */}
-            <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-[#16241E] border border-emerald-500/20">
-              <div className="flex items-center gap-2 mb-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs sm:text-sm">
-                <Smartphone className="w-4 h-4" />
-                <span>Emerald Life APK</span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
-                {lang === 'fa'
-                  ? 'نسخه ۱.۰.۰ رسمی اندروید (۶۷ مگابایت)'
-                  : 'Official v1.0.0 Android Release (~67MB)'}
-              </p>
-              <a
-                href="/emerald-life.apk"
-                download="emerald-life.apk"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-colors"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>{lang === 'fa' ? 'دریافت مستقیم فایل' : 'Direct APK Download'}</span>
-              </a>
-            </div>
+          {/* Legal Information Column */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+              {t.legalTitle}
+            </h4>
+            <ul className="space-y-2.5 text-sm sm:text-[15px]">
+              <li>
+                <button
+                  onClick={onOpenPrivacy}
+                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <span>{t.privacy}</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={onOpenTerms}
+                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
+                >
+                  <span>{t.terms}</span>
+                </button>
+              </li>
+            </ul>
+            <p className="text-xs sm:text-[13px] text-slate-500 dark:text-slate-400 pt-2 leading-relaxed">
+              {lang === 'fa'
+                ? 'اپلیکیشن اختصاصی اندروید با ساختار کاملاً امن و محلی.'
+                : 'Dedicated Android application with a secure local-first architecture.'}
+            </p>
           </div>
         </div>
 
         {/* Bottom Bar: Copyright & Scroll to Top */}
-        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+        <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-[13px] text-slate-500 dark:text-slate-400">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-start">
             <p>{t.copyright}</p>
             <span className="hidden sm:inline opacity-40">•</span>

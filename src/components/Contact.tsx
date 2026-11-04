@@ -22,7 +22,8 @@ interface ContactProps {
 }
 
 interface FormState {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   subject: string;
   message: string;
@@ -30,7 +31,8 @@ interface FormState {
 }
 
 interface FormErrors {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   subject?: string;
   message?: string;
@@ -64,7 +66,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   const [currentIdempotencyKey, setCurrentIdempotencyKey] = useState<string>('');
 
   const [formData, setFormData] = useState<FormState>({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     subject: '',
     message: '',
@@ -117,18 +120,28 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
 
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
-    const cleanName = sanitize(formData.name);
+    const cleanFirstName = sanitize(formData.firstName);
+    const cleanLastName = sanitize(formData.lastName);
     const cleanEmail = formData.email.trim();
     const cleanSubject = sanitize(formData.subject);
     const cleanMessage = sanitize(formData.message);
 
-    // Name validation
-    if (!cleanName) {
-      newErrors.name = t.validationErrors.nameRequired;
-    } else if (cleanName.length < 2) {
-      newErrors.name = t.validationErrors.nameMin;
-    } else if (cleanName.length > 80) {
-      newErrors.name = t.validationErrors.nameMax;
+    // First Name validation
+    if (!cleanFirstName) {
+      newErrors.firstName = t.validationErrors.firstNameRequired;
+    } else if (cleanFirstName.length < 2) {
+      newErrors.firstName = t.validationErrors.firstNameMin;
+    } else if (cleanFirstName.length > 40) {
+      newErrors.firstName = t.validationErrors.firstNameMax;
+    }
+
+    // Last Name validation
+    if (!cleanLastName) {
+      newErrors.lastName = t.validationErrors.lastNameRequired;
+    } else if (cleanLastName.length < 2) {
+      newErrors.lastName = t.validationErrors.lastNameMin;
+    } else if (cleanLastName.length > 40) {
+      newErrors.lastName = t.validationErrors.lastNameMax;
     }
 
     // Email validation
@@ -179,7 +192,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       setTimeout(() => {
         setStatus('success');
         setFormData({
-          name: '',
+          firstName: '',
+          lastName: '',
           email: '',
           subject: '',
           message: '',
@@ -198,7 +212,9 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     setStatus('submitting');
     setErrorMessage('');
 
-    const cleanName = sanitize(formData.name);
+    const cleanFirstName = sanitize(formData.firstName);
+    const cleanLastName = sanitize(formData.lastName);
+    const cleanFullName = `${cleanFirstName} ${cleanLastName}`.trim();
     const cleanEmail = formData.email.trim();
     const cleanSubject = sanitize(formData.subject);
     const cleanMessage = sanitize(formData.message);
@@ -214,6 +230,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     }
 
     // Primary: Attempt delivery via dedicated Node.js Chabokan Backend if configured
+    // Note: We map frontend firstName + lastName seamlessly to backend "name" parameter
+    // strictly adhering to the backend API contract without requiring breaking changes.
     if (isBackendConfigured) {
       try {
         const response = await fetch(`${apiBaseUrl}/api/contact`, {
@@ -224,7 +242,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
             'Idempotency-Key': idempotencyKey,
           },
           body: JSON.stringify({
-            name: cleanName,
+            name: cleanFullName,
             email: cleanEmail,
             subject: cleanSubject,
             message: cleanMessage,
@@ -238,7 +256,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           setStatus('success');
           setCurrentIdempotencyKey(''); // Clear key on successful delivery
           setFormData({
-            name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             subject: '',
             message: '',
@@ -277,10 +296,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
 
         console.warn('Dedicated backend returned server error, falling back to EmailJS...');
       } catch (backendErr: unknown) {
-        // Network timeout / connection dropped.
-        // NOTE: If the request reached the backend and sent the email, re-sending via EmailJS
-        // could produce a duplicate. If EmailJS is configured, we proceed to EmailJS only
-        // if user explicitly submits again or if the backend was completely unreachable.
         console.warn('Primary backend delivery attempt failed (network/server):', backendErr);
         if (!isEmailJSConfigured) {
           setStatus('error');
@@ -295,7 +310,9 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     if (isEmailJSConfigured) {
       try {
         const templateParams = {
-          from_name: cleanName,
+          from_name: cleanFullName,
+          first_name: cleanFirstName,
+          last_name: cleanLastName,
           reply_to: cleanEmail,
           subject: cleanSubject,
           message: cleanMessage,
@@ -318,7 +335,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         if (response.status === 200) {
           setStatus('success');
           setFormData({
-            name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             subject: '',
             message: '',
@@ -345,12 +363,13 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   };
 
   const handleDirectMail = () => {
+    const cleanFullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
     const encodedSubject = encodeURIComponent(
-      `[Sana Studio Contact] ${formData.subject.trim() || 'New Inquiry'}`
+      `[Emerald Life Contact] ${formData.subject.trim() || 'New Inquiry'}`
     );
     const senderInfo =
-      formData.name.trim() || formData.email.trim()
-        ? `فرستنده / Sender: ${formData.name.trim()} (${formData.email.trim()})\n\n`
+      cleanFullName || formData.email.trim()
+        ? `فرستنده / Sender: ${cleanFullName} (${formData.email.trim()})\n\n`
         : '';
     const encodedBody = encodeURIComponent(
       `${senderInfo}${formData.message.trim()}`
@@ -372,18 +391,20 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   };
 
   return (
-    <section id="contact" className="py-16 md:py-20 relative">
+    <section id="contact" className="py-14 sm:py-16 md:py-20 relative">
       <div className="site-container">
         {/* Section Header */}
         <div className="text-center max-w-lg mx-auto mb-8 sm:mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 mb-3">
             <Mail className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>{t.badge}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+
+          <h2 className="text-[24px] sm:text-[27px] md:text-[30px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {t.title}
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+
+          <p className="text-sm sm:text-[15px] md:text-[16px] text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed">
             {t.subtitle}
           </p>
         </div>
@@ -426,7 +447,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   <button
                     type="button"
                     onClick={handleResetForm}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold shadow-md transition-all focus:outline-none"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold shadow-md transition-all focus:outline-none"
                   >
                     <RotateCcw className="w-4 h-4" />
                     <span>{t.sendAnotherBtn}</span>
@@ -466,7 +487,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   />
                 </div>
 
-                {/* Error Banner (Form preserved) */}
+                {/* Error Banner */}
                 {status === 'error' && (
                   <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/25 text-slate-900 dark:text-white text-xs">
                     <div className="flex items-start gap-2">
@@ -504,76 +525,109 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   </div>
                 )}
 
-                {/* Row 1: Name and Email */}
+                {/* 
+                  Field 1 & Field 2: Separate First Name and Last Name inputs
+                */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Name Field */}
+                  {/* Field 1: First Name */}
                   <div>
                     <label
-                      htmlFor="contact-name"
+                      htmlFor="contact-first-name"
                       className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
                     >
-                      {t.nameLabel} <span className="text-red-500">*</span>
+                      {t.firstNameLabel} <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id="contact-name"
+                      id="contact-first-name"
                       type="text"
-                      maxLength={80}
-                      value={formData.name}
+                      maxLength={40}
+                      value={formData.firstName}
                       onChange={(e) => {
-                        setFormData({ ...formData, name: e.target.value });
-                        if (errors.name) setErrors({ ...errors, name: undefined });
+                        setFormData({ ...formData, firstName: e.target.value });
+                        if (errors.firstName) setErrors({ ...errors, firstName: undefined });
                       }}
-                      placeholder={t.namePlaceholder}
+                      placeholder={t.firstNamePlaceholder}
                       className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
-                        errors.name
+                        errors.firstName
                           ? 'border-red-500 ring-2 ring-red-500/20'
                           : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
                       }`}
                     />
-                    {errors.name && (
+                    {errors.firstName && (
                       <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
                         <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{errors.name}</span>
+                        <span>{errors.firstName}</span>
                       </p>
                     )}
                   </div>
 
-                  {/* Email Field */}
+                  {/* Field 2: Last Name */}
                   <div>
                     <label
-                      htmlFor="contact-email"
+                      htmlFor="contact-last-name"
                       className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
                     >
-                      {t.emailLabel} <span className="text-red-500">*</span>
+                      {t.lastNameLabel} <span className="text-red-500">*</span>
                     </label>
                     <input
-                      id="contact-email"
-                      type="email"
-                      maxLength={120}
-                      value={formData.email}
+                      id="contact-last-name"
+                      type="text"
+                      maxLength={40}
+                      value={formData.lastName}
                       onChange={(e) => {
-                        setFormData({ ...formData, email: e.target.value });
-                        if (errors.email)
-                          setErrors({ ...errors, email: undefined });
+                        setFormData({ ...formData, lastName: e.target.value });
+                        if (errors.lastName) setErrors({ ...errors, lastName: undefined });
                       }}
-                      placeholder={t.emailPlaceholder}
+                      placeholder={t.lastNamePlaceholder}
                       className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
-                        errors.email
+                        errors.lastName
                           ? 'border-red-500 ring-2 ring-red-500/20'
                           : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
                       }`}
-                      dir="ltr"
                     />
-                    {errors.email && (
+                    {errors.lastName && (
                       <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
                         <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span>{errors.email}</span>
+                        <span>{errors.lastName}</span>
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Row 2: Subject Field */}
+                {/* Field 3: Email Address */}
+                <div>
+                  <label
+                    htmlFor="contact-email"
+                    className="block text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white mb-2"
+                  >
+                    {t.emailLabel} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="contact-email"
+                    type="email"
+                    maxLength={120}
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      if (errors.email) setErrors({ ...errors, email: undefined });
+                    }}
+                    placeholder={t.emailPlaceholder}
+                    className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
+                      errors.email
+                        ? 'border-red-500 ring-2 ring-red-500/20'
+                        : 'border-emerald-500/15 dark:border-emerald-500/25 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25'
+                    }`}
+                    dir="ltr"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 flex items-center gap-1 text-[11px] text-red-500">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
+                </div>
+
+                {/* Field 4: Subject Field */}
                 <div>
                   <label
                     htmlFor="contact-subject"
@@ -588,8 +642,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                     value={formData.subject}
                     onChange={(e) => {
                       setFormData({ ...formData, subject: e.target.value });
-                      if (errors.subject)
-                        setErrors({ ...errors, subject: undefined });
+                      if (errors.subject) setErrors({ ...errors, subject: undefined });
                     }}
                     placeholder={t.subjectPlaceholder}
                     className={`w-full h-11 sm:h-12 px-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all ${
@@ -606,7 +659,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   )}
                 </div>
 
-                {/* Row 3: Message Textarea */}
+                {/* Field 5: Message Multiline Textarea */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label
@@ -626,8 +679,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                     value={formData.message}
                     onChange={(e) => {
                       setFormData({ ...formData, message: e.target.value });
-                      if (errors.message)
-                        setErrors({ ...errors, message: undefined });
+                      if (errors.message) setErrors({ ...errors, message: undefined });
                     }}
                     placeholder={t.messagePlaceholder}
                     className={`w-full min-h-[130px] sm:min-h-[140px] p-3.5 rounded-xl bg-slate-50 dark:bg-[#0B1310] border text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-[#16241E] focus:outline-none transition-all resize-y ${
@@ -644,12 +696,12 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   )}
                 </div>
 
-                {/* Submit and Action Buttons */}
+                {/* Professional Submit Button (14-16px) */}
                 <div className="pt-1 flex flex-col sm:flex-row gap-3">
                   <button
                     type="submit"
                     disabled={status === 'submitting' || remainingCooldown > 0}
-                    className="flex-1 h-12 flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.99]"
+                    className="flex-1 h-11 sm:h-12 flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm sm:text-[15px] shadow-lg shadow-emerald-600/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.99]"
                   >
                     {status === 'submitting' ? (
                       <>
@@ -670,13 +722,13 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                     )}
                   </button>
 
-                  {/* If configured, offer secondary direct mail option if preferred */}
+                  {/* Secondary direct mail fallback if desired */}
                   {isAnyServiceConfigured && (
                     <button
                       type="button"
                       onClick={handleDirectMail}
                       title={t.fallbackMailBtn}
-                      className="px-5 h-12 flex items-center justify-center gap-1.5 rounded-2xl border border-emerald-500/20 dark:border-emerald-500/30 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold transition-colors focus:outline-none"
+                      className="px-4 h-11 sm:h-12 flex items-center justify-center gap-1.5 rounded-2xl border border-emerald-500/20 dark:border-emerald-500/30 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-semibold transition-colors focus:outline-none"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">{t.fallbackMailBtn}</span>
@@ -736,7 +788,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                 <Info className="w-3.5 h-3.5" />
                 <span>
                   {lang === 'fa'
-                    ? 'ارسال امن بدون واسطه‌های ناامن'
+                    ? 'ارسال مستقیم و امن به صندوق رسمی تیم'
                     : 'Encrypted direct dispatch to official inbox'}
                 </span>
               </div>

@@ -10,7 +10,6 @@ import {
   Globe,
   Menu,
   X,
-  Download,
   User,
   LogOut,
   ChevronDown,
@@ -80,9 +79,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
   const navItems = [
     { id: 'hero', label: t.home },
     { id: 'features', label: t.features },
+    { id: 'screenshots', label: t.screenshots },
     { id: 'how-it-works', label: t.howItWorks },
-    { id: 'preview', label: t.preview },
-    { id: 'benefits', label: t.benefits },
+    { id: 'values', label: t.values },
     { id: 'faq', label: t.faq },
     { id: 'contact', label: t.contact },
   ];
@@ -106,25 +105,25 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
             <Logo size="md" />
           </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-1 bg-white/70 dark:bg-emerald-950/40 border border-emerald-500/15 dark:border-emerald-500/20 px-3 py-1.5 rounded-full shadow-xs">
+          {/* Desktop Navigation Links (14-15px font size) */}
+          <nav className="hidden lg:flex items-center gap-1 bg-white/70 dark:bg-emerald-950/40 border border-emerald-500/15 dark:border-emerald-500/20 px-3 py-1.5 rounded-full shadow-xs">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className="px-3 py-1 text-xs sm:text-[13px] font-medium rounded-full text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors focus:outline-none"
+                className="px-3 py-1 text-sm font-medium rounded-full text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors focus:outline-none"
               >
                 {item.label}
               </button>
             ))}
           </nav>
 
-          {/* Controls: Language, Theme, Account & Download */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Controls: Language, Theme, Account */}
+          <div className="hidden sm:flex items-center gap-2">
             {/* Language Switcher */}
             <button
               onClick={() => onLanguageChange(lang === 'fa' ? 'en' : 'fa')}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/20 dark:border-emerald-500/30 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/20 dark:border-emerald-500/30 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               title={lang === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
             >
               <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -183,26 +182,17 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
               ) : (
                 <button
                   onClick={openAuthModal}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/20 dark:border-emerald-500/30 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl border border-emerald-500/20 dark:border-emerald-500/30 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-all"
                 >
                   <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>{t.account}</span>
                 </button>
               )}
             </div>
-
-            {/* Primary Download Button */}
-            <button
-              onClick={() => scrollToSection('download')}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 active:scale-[0.98]"
-            >
-              <Download className="w-4 h-4" />
-              <span>{t.downloadApp}</span>
-            </button>
           </div>
 
           {/* Mobile Actions & Hamburger */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl border border-emerald-500/20 dark:border-emerald-500/30 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900"
@@ -232,9 +222,9 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
           </div>
         </div>
 
-        {/* Mobile Fullscreen Navigation Dropdown */}
+        {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
-          <div className="fixed inset-x-0 top-[60px] bottom-0 bg-slate-900/40 backdrop-blur-md z-50 md:hidden animate-fadeIn">
+          <div className="fixed inset-x-0 top-[60px] bottom-0 bg-slate-900/40 backdrop-blur-md z-50 lg:hidden animate-fade-in">
             <div className="bg-white dark:bg-[#111D18] border-b border-emerald-500/20 p-5 space-y-4 shadow-xl">
               <nav className="flex flex-col gap-1.5">
                 {navItems.map((item) => (
@@ -258,14 +248,6 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
                 >
                   <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>{isAuthenticated ? user?.name : t.account}</span>
-                </button>
-
-                <button
-                  onClick={() => scrollToSection('download')}
-                  className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>{t.downloadApp}</span>
                 </button>
               </div>
             </div>

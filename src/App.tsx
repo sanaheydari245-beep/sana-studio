@@ -4,10 +4,9 @@ import type { Language } from './data/translations';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Features } from './components/Features';
+import { AppScreenshots } from './components/AppScreenshots';
 import { HowItWorks } from './components/HowItWorks';
-import { AppPreview } from './components/AppPreview';
-import { Benefits } from './components/Benefits';
-import { Download } from './components/Download';
+import { KeyValues } from './components/KeyValues';
 import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
@@ -54,7 +53,7 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 bg-[#F8FAFC] dark:bg-[#0B1310] text-slate-900 dark:text-slate-100 ${
+      className={`min-h-screen flex flex-col transition-colors duration-200 bg-[#F8FAFC] dark:bg-[#0B1310] text-slate-900 dark:text-slate-100 ${
         lang === 'fa' ? 'text-right' : 'text-left'
       }`}
     >
@@ -63,32 +62,29 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
 
       {/* Main Single Page Content */}
       <main className="flex-1">
-        {/* Section 1: Hero */}
+        {/* Section 1: Hero Section */}
         <Hero lang={lang} />
 
-        {/* Section 2: Features */}
+        {/* Section 2: Features Section */}
         <Features lang={lang} />
 
-        {/* Section 3: How It Works */}
+        {/* Section 3: App Screenshots Showcase */}
+        <AppScreenshots lang={lang} />
+
+        {/* Section 4: How It Works */}
         <HowItWorks lang={lang} />
 
-        {/* Section 4: Interactive App Preview */}
-        <AppPreview lang={lang} />
+        {/* Section 5: Our Key Values (Exactly 5 items in balanced 2-1-2 layout) */}
+        <KeyValues lang={lang} />
 
-        {/* Section 5: Benefits */}
-        <Benefits lang={lang} />
-
-        {/* Section 6: Direct Download Section */}
-        <Download lang={lang} />
-
-        {/* Section 7: Frequently Asked Questions */}
+        {/* Section 6: Frequently Asked Questions */}
         <FAQ lang={lang} />
 
-        {/* Section 8: Contact & Feedback Form */}
+        {/* Section 7: Updated Contact Form (5 fields) with backend integration */}
         <Contact lang={lang} />
       </main>
 
-      {/* Section 9: Footer */}
+      {/* Section 8: Footer */}
       <Footer
         lang={lang}
         onLanguageChange={handleLanguageChange}
