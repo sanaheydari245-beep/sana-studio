@@ -41,11 +41,12 @@ export const Features: React.FC<FeaturesProps> = ({ lang }) => {
             <span>{t.badge}</span>
           </div>
 
-          <h2 className="text-[24px] sm:text-[27px] md:text-[30px] font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+          {/* Section Heading: 25-29px */}
+          <h2 className="text-[22px] sm:text-[25px] md:text-[27px] font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
             {t.title}
           </h2>
 
-          <p className="text-sm sm:text-[15px] md:text-[16px] text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed">
+          <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed">
             {t.subtitle}
           </p>
         </div>
@@ -72,8 +73,8 @@ export const Features: React.FC<FeaturesProps> = ({ lang }) => {
                   </span>
                 </div>
 
-                {/* Card Heading: 17-19px */}
-                <h3 className="text-[17px] sm:text-[18px] font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                {/* Card Heading: 16-18px */}
+                <h3 className="text-[16px] sm:text-[17px] font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   {item.title}
                 </h3>
 

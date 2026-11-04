@@ -101,6 +101,14 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button
+                  onClick={() => scrollTo('profile')}
+                  className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                >
+                  {nav.profile}
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => scrollTo('how-it-works')}
                   className="text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >

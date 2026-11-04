@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { Features } from './components/Features';
 import { AppScreenshots } from './components/AppScreenshots';
+import { ProfileSection } from './components/ProfileSection';
 import { HowItWorks } from './components/HowItWorks';
 import { KeyValues } from './components/KeyValues';
 import { FAQ } from './components/FAQ';
@@ -71,7 +72,10 @@ const SinglePageLayout: React.FC<{ lang: Language }> = ({ lang }) => {
         {/* Section 3: App Screenshots Showcase */}
         <AppScreenshots lang={lang} />
 
-        {/* Section 4: How It Works */}
+        {/* Section 4: My Profile & Personal Statistics Section */}
+        <ProfileSection lang={lang} />
+
+        {/* Section 5: How It Works */}
         <HowItWorks lang={lang} />
 
         {/* Section 5: Our Key Values (Exactly 5 items in balanced 2-1-2 layout) */}

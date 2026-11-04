@@ -46,8 +46,8 @@ export const Hero: React.FC<HeroProps> = ({ lang }) => {
               <span>{t.badge}</span>
             </div>
 
-            {/* Main Headline (28-34px on mobile, 36-44px on desktop) */}
-            <h1 className="text-[28px] sm:text-[34px] md:text-[40px] lg:text-[44px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.2]">
+            {/* Main Headline (26-30px on mobile, 32-38px on desktop) */}
+            <h1 className="text-[26px] sm:text-[30px] md:text-[34px] lg:text-[36px] font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-[1.25]">
               {t.title}{' '}
               <span className="text-emerald-600 dark:text-emerald-400 block sm:inline">
                 {t.titleHighlight}

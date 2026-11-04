@@ -80,6 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({ lang, onLanguageChange }) => {
     { id: 'hero', label: t.home },
     { id: 'features', label: t.features },
     { id: 'screenshots', label: t.screenshots },
+    { id: 'profile', label: t.profile },
     { id: 'how-it-works', label: t.howItWorks },
     { id: 'values', label: t.values },
     { id: 'faq', label: t.faq },

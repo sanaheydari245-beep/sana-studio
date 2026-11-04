@@ -5,6 +5,7 @@ export interface TranslationSchema {
     home: string;
     features: string;
     screenshots: string;
+    profile: string;
     howItWorks: string;
     values: string;
     faq: string;
@@ -56,6 +57,19 @@ export interface TranslationSchema {
       desc: string;
       image: string;
       tag: string;
+    }>;
+  };
+  profileSection: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    totalStudyLabel: string;
+    totalStudyValue: string;
+    tasksDoneLabel: string;
+    tasksDoneValue: string;
+    features: Array<{
+      title: string;
+      desc: string;
     }>;
   };
   howItWorks: {
@@ -179,6 +193,7 @@ export const translations: Record<Language, TranslationSchema> = {
       home: 'صفحه اصلی',
       features: 'امکانات و قابلیت‌ها',
       screenshots: 'تصاویر محیط برنامه',
+      profile: 'پروفایل کاربری',
       howItWorks: 'نحوه کارکرد',
       values: 'ارزش‌های کلیدی ما',
       faq: 'پرسش‌های متداول',
@@ -334,6 +349,41 @@ export const translations: Record<Language, TranslationSchema> = {
           desc: 'شمارش معکوس دایره‌ای ۲۵ دقیقه‌ای منطبق بر تکنیک پومودورو، دکمه‌های کنترل استراحت و سوئیچ بین حالت‌ها.',
           image: '/images/timer.jpg',
           tag: 'تایمر فکوس',
+        },
+        {
+          id: 'profile',
+          title: 'پروفایل و آمار مطالعه (My Profile)',
+          desc: 'مشاهده مشخصات، مجموع زمان مطالعه (Total Study)، تسک‌های انجام‌شده، تنظیمات پوسته، زبان و اعلان‌ها.',
+          image: '/images/profile.jpg',
+          tag: 'پروفایل کاربر',
+        },
+      ],
+    },
+    profileSection: {
+      badge: 'پروفایل و آمار کاربری',
+      title: 'پروفایل اختصاصی و کنترل یکپارچه تنظیمات',
+      subtitle:
+        'مشاهده خلاصه عملکرد و ساعات مطالعه، تعداد وظایف انجام‌شده، و تنظیمات شخصی‌سازی در یک نگاه.',
+      totalStudyLabel: 'مجموع ساعات مطالعه',
+      totalStudyValue: '۴ ساعت و ۱۱ دقیقه',
+      tasksDoneLabel: 'تسک‌های انجام‌شده',
+      tasksDoneValue: '۹ وظیفه',
+      features: [
+        {
+          title: 'کارنامه و آمار دستاوردها',
+          desc: 'ثبت دقیق و خودکار زمان‌های صرف‌شده برای مطالعه و شمارش تسک‌های تکمیل‌شده بدون نیاز به محاسبات دستی.',
+        },
+        {
+          title: 'شخصی‌سازی پوسته و تم تاریک OLED',
+          desc: 'امکان انتخاب تم مشکی مطلق برای صرفه‌جویی چشمگیر باتری در صفحات آمولد و تغییر پالت‌های رنگی برنامه.',
+        },
+        {
+          title: 'مدیریت یادآورها و اعلانات هوشمند',
+          desc: 'شخصی‌سازی زنگ هشدار تایمر و تعیین زمان دقیق اعلان‌های یادآوری عادات و سررسید تسک‌ها.',
+        },
+        {
+          title: 'حفظ ۱۰۰٪ محلی و امن اطلاعات',
+          desc: 'کلیه اطلاعات هویتی و سوابق شما صرفاً در دیتابیس امن داخلی گوشی قرار داشته و هرگز به سرور ارسال نمی‌شود.',
         },
       ],
     },
@@ -567,6 +617,7 @@ export const translations: Record<Language, TranslationSchema> = {
       home: 'Home',
       features: 'Features',
       screenshots: 'Screenshots',
+      profile: 'User Profile',
       howItWorks: 'How It Works',
       values: 'Our Key Values',
       faq: 'FAQ',
@@ -722,6 +773,41 @@ export const translations: Record<Language, TranslationSchema> = {
           desc: '25:00 circular focus timer based on Pomodoro technique with break controls, countdown mode, and stopwatch.',
           image: '/images/timer.jpg',
           tag: 'Focus Timer',
+        },
+        {
+          id: 'profile',
+          title: 'Profile & Settings Overview (My Profile)',
+          desc: 'Manage profile details, total study hours (4h 11m), tasks completed, OLED dark mode, and notifications.',
+          image: '/images/profile.jpg',
+          tag: 'My Profile',
+        },
+      ],
+    },
+    profileSection: {
+      badge: 'User Profile & Settings',
+      title: 'Personal Profile & Settings Hub',
+      subtitle:
+        'Review total study duration, completed tasks count, and customize appearance and reminders in one unified screen.',
+      totalStudyLabel: 'Total Study Time',
+      totalStudyValue: '4h 11m',
+      tasksDoneLabel: 'Tasks Completed',
+      tasksDoneValue: '9 Tasks',
+      features: [
+        {
+          title: 'Study & Achievement Metrics',
+          desc: 'Automatic on-device tracking of all focus hours and completed task counts without cloud dependency.',
+        },
+        {
+          title: 'Appearance & Dark OLED Mode',
+          desc: 'Switch to true black AMOLED dark mode to extend battery longevity and personalize accent colors.',
+        },
+        {
+          title: 'Smart Reminders & Notifications',
+          desc: 'Configure custom audio alarms and reminder schedules for routine habits and urgent task deadlines.',
+        },
+        {
+          title: '100% Private & Stored Locally',
+          desc: 'All profile preferences and activity records stay exclusively inside your Android device storage.',
         },
       ],
     },

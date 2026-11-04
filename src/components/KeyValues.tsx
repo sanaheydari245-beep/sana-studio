@@ -39,7 +39,7 @@ export const KeyValues: React.FC<KeyValuesProps> = ({ lang }) => {
             <span>{t.badge}</span>
           </div>
 
-          <h2 className="text-[24px] sm:text-[27px] md:text-[30px] font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+          <h2 className="text-[22px] sm:text-[25px] md:text-[27px] font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
             {t.title}
           </h2>
 
@@ -102,7 +102,7 @@ export const KeyValues: React.FC<KeyValuesProps> = ({ lang }) => {
                   </span>
                 </div>
 
-                <h3 className="text-[18px] sm:text-[20px] font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
+                <h3 className="text-[17px] sm:text-[18px] font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
                   {centerItem.title}
                 </h3>
 
