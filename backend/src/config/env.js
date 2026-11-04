@@ -69,11 +69,14 @@ const config = {
     const val = (process.env.TRUST_PROXY || '').trim().toLowerCase();
     if (val === 'false') return false;
     if (val === 'true') {
-      console.warn('⚠️ [Security Warning] TRUST_PROXY=true blindly trusts arbitrary client-supplied X-Forwarded-For headers. Clamping to 1 hop for safety.');
+      console.warn('⚠️ [Security Warning] TRUST_PROXY=true blindly trusts arbitrary client-supplied X-Forwarded-For headers. Setting to 1 hop for safety.');
       return 1;
     }
     if (val === 'loopback') return 'loopback';
     if (/^\d+$/.test(val)) return parseInt(val, 10);
+    if (val.includes(',')) {
+      return val.split(',').map(s => s.trim()).filter(Boolean);
+    }
     // Narrowest safe default
     return 'loopback';
   })(),
@@ -85,11 +88,27 @@ const config = {
   mail: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '465', 10),
-    secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : (parseInt(process.env.SMTP_PORT || '465', 10) === 465),
     user: process.env.SMTP_USER || 'sanaheydari245@gmail.com',
     pass: process.env.SMTP_PASS || '',
     to: process.env.MAIL_TO || 'sanaheydari245@gmail.com',
     fromName: process.env.MAIL_FROM_NAME || 'Sana Studio Contact Form',
+  },
+
+  turnstile: {
+    mode: (() => {
+      const mode = (process.env.TURNSTILE_MODE || '').trim().toLowerCase();
+      if (mode === 'required' || mode === 'enforced') return 'required';
+      if (mode === 'disabled' || mode === 'off') return 'disabled';
+      // Default: if secret is present, require it; otherwise explicitly disabled
+      return process.env.TURNSTILE_SECRET_KEY ? 'required' : 'disabled';
+    })(),
+    secretKey: (process.env.TURNSTILE_SECRET_KEY || '').trim(),
+    siteKey: (process.env.TURNSTILE_SITE_KEY || '').trim(),
+    expectedAction: process.env.TURNSTILE_EXPECTED_ACTION || 'contact',
+    expectedHostname: process.env.TURNSTILE_EXPECTED_HOSTNAME || '',
+    siteverifyUrl: process.env.TURNSTILE_SITEVERIFY_URL || 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    timeoutMs: parseInt(process.env.TURNSTILE_TIMEOUT_MS || '5000', 10),
   },
 };
 
@@ -103,6 +122,12 @@ function validateProductionConfig() {
     }
     if (config.cors.allowedOrigins.some(o => o.includes('*'))) {
       throw new Error('Fatal: Wildcard CORS origin (*) is forbidden in production with credentials.');
+    }
+    if (config.turnstile.mode === 'required' && !config.turnstile.secretKey) {
+      throw new Error('Fatal: TURNSTILE_MODE is set to "required", but TURNSTILE_SECRET_KEY is missing.');
+    }
+    if (config.turnstile.mode === 'disabled') {
+      console.warn('ℹ️ [Security Notice] Turnstile is explicitly disabled. Contact form is protected by honeypot and IP rate limiting only.');
     }
   }
 }

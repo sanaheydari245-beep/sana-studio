@@ -7,41 +7,66 @@ const path = require('node:path');
 // Configure test environment
 process.env.NODE_ENV = 'test';
 process.env.TRUST_PROXY = '1';
+process.env.TURNSTILE_MODE = 'disabled'; // Default to disabled for general suite
 
 const app = require('../index');
+const config = require('../src/config/env');
+const { getTransporter } = require('../src/config/mailer');
 const { sanitizeSingleLine, sanitizeText } = require('../src/middleware/validator');
 const { escapeHtml } = require('../src/services/email.service');
 const { clearIdempotencyCache, acquireIdempotencyLock } = require('../src/services/idempotency.service');
 
 let server;
 let baseUrl;
+let mockTurnstileServer;
+let mockTurnstileUrl;
+let mockTurnstileHandler = null;
 let testIpCounter = 1;
 
 function getFreshIpHeader() {
   testIpCounter += 1;
-  // With trustProxy=1, the client IP is the address immediately preceding the trusted proxy hop
   return { 'X-Forwarded-For': `198.51.100.${testIpCounter}` };
 }
 
-before(() => new Promise((resolve) => {
-  server = http.createServer(app);
-  server.listen(0, '127.0.0.1', () => {
-    const port = server.address().port;
-    baseUrl = `http://127.0.0.1:${port}`;
-    resolve();
+before(async () => {
+  // 1. Start Main Express Test Server
+  await new Promise((resolve) => {
+    server = http.createServer(app);
+    server.listen(0, '127.0.0.1', () => {
+      const port = server.address().port;
+      baseUrl = `http://127.0.0.1:${port}`;
+      resolve();
+    });
   });
-}));
 
-after(() => new Promise((resolve) => {
-  if (server) {
-    server.close(resolve);
-  } else {
-    resolve();
-  }
-}));
+  // 2. Start Local Mock Cloudflare Siteverify Server
+  await new Promise((resolve) => {
+    mockTurnstileServer = http.createServer((req, res) => {
+      if (mockTurnstileHandler) {
+        mockTurnstileHandler(req, res);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, action: 'contact', hostname: 'sanastudio.ir' }));
+      }
+    });
+    mockTurnstileServer.listen(0, '127.0.0.1', () => {
+      const port = mockTurnstileServer.address().port;
+      mockTurnstileUrl = `http://127.0.0.1:${port}/siteverify`;
+      resolve();
+    });
+  });
+});
+
+after(async () => {
+  if (server) await new Promise((resolve) => server.close(resolve));
+  if (mockTurnstileServer) await new Promise((resolve) => mockTurnstileServer.close(resolve));
+});
 
 beforeEach(() => {
   clearIdempotencyCache();
+  mockTurnstileHandler = null;
+  config.turnstile.mode = 'disabled';
+  config.turnstile.siteverifyUrl = mockTurnstileUrl;
 });
 
 describe('1. Nodemailer Version & Package Integrity', () => {
@@ -57,6 +82,17 @@ describe('1. Nodemailer Version & Package Integrity', () => {
       maj > 10 || (maj === 10 && (min > 3 || (min === 3 && patch >= 1))),
       `Nodemailer version must be >= 10.3.1, got ${nodemailerPkg.version}`
     );
+  });
+
+  test('SMTP transporter enforces TLS verification, timeouts, and fixed credentials', () => {
+    const transporter = getTransporter();
+    assert.equal(transporter.options.host, config.mail.host);
+    assert.equal(transporter.options.port, config.mail.port);
+    assert.equal(transporter.options.secure, true);
+    assert.equal(transporter.options.connectionTimeout, 5000);
+    assert.equal(transporter.options.greetingTimeout, 5000);
+    assert.equal(transporter.options.socketTimeout, 10000);
+    assert.equal(transporter.options.tls.rejectUnauthorized, true);
   });
 });
 
@@ -78,8 +114,7 @@ describe('2. Base API & Health Endpoints', () => {
   });
 
   test('GET /api/health/mailer in production returns 403 Forbidden', async () => {
-    const originalEnv = process.env.NODE_ENV;
-    const config = require('../src/config/env');
+    const originalEnv = config.env;
     config.env = 'production';
 
     try {
@@ -154,10 +189,10 @@ describe('3. Contact API Validation & Anti-Relay Protections', () => {
     });
     assert.equal(res.status, 400);
     const data = await res.json();
-    assert.ok(data.errors.name, 'Name error required');
-    assert.ok(data.errors.email, 'Email error required');
-    assert.ok(data.errors.subject, 'Subject error required');
-    assert.ok(data.errors.message, 'Message error required');
+    assert.ok(data.errors.name);
+    assert.ok(data.errors.email);
+    assert.ok(data.errors.subject);
+    assert.ok(data.errors.message);
   });
 
   test('Rejects fields exceeding maximum allowed length', async () => {
@@ -300,10 +335,9 @@ describe('9. Rate Limiting & Spoofing Protection', () => {
       email: 'user@example.com',
       subject: 'Rate Limit Test',
       message: 'Testing that rate limits trigger correctly',
-      _gotcha: 'bot-trap', // Use honeypot so no SMTP send is attempted
+      _gotcha: 'bot-trap',
     });
 
-    // Make 5 requests (should succeed with 200)
     for (let i = 0; i < 5; i++) {
       const res = await fetch(`${baseUrl}/api/contact`, {
         method: 'POST',
@@ -313,7 +347,6 @@ describe('9. Rate Limiting & Spoofing Protection', () => {
       assert.equal(res.status, 200, `Request ${i + 1} of 5 should succeed`);
     }
 
-    // 6th request from the same IP must be rejected with 429 Too Many Requests
     const resBlocked = await fetch(`${baseUrl}/api/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...fixedIpHeaders },
@@ -323,9 +356,315 @@ describe('9. Rate Limiting & Spoofing Protection', () => {
     const blockedData = await resBlocked.json();
     assert.equal(blockedData.error, 'Too many requests');
   });
+
+  test('Attacker attempting to spoof X-Forwarded-For cannot bypass 1-hop rate limiter', async () => {
+    // In Express with trust proxy = 1, the client IP is determined by the last hop
+    // An attacker prefixing fake IPs: "fake-ip-1, real-attacker-ip" will still be resolved as "real-attacker-ip"
+    const realAttackerIp = '198.51.100.99';
+    const body = JSON.stringify({
+      name: 'Spoof Test',
+      email: 'spoof@example.com',
+      subject: 'Spoof Header Test',
+      message: 'Testing that spoofed prefixes do not change resolved IP',
+      _gotcha: 'trap',
+    });
+
+    for (let i = 0; i < 5; i++) {
+      await fetch(`${baseUrl}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Forwarded-For': `1.2.3.${i}, ${realAttackerIp}`,
+        },
+        body,
+      });
+    }
+
+    // 6th request with yet another spoofed leftmost IP should still hit the rate limit for realAttackerIp
+    const blockedRes = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': `9.9.9.9, ${realAttackerIp}`,
+      },
+      body,
+    });
+
+    assert.equal(blockedRes.status, 429, 'Spoofed leftmost IP must not bypass rate limit when trust proxy = 1');
+  });
 });
 
-describe('10. Idempotency & In-Flight Concurrency Locking', () => {
+describe('10. Cloudflare Turnstile Server-Side Verification', () => {
+  test('Explicitly disabled mode allows contact submission without Turnstile token', async () => {
+    config.turnstile.mode = 'disabled';
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Disabled Mode User',
+        email: 'user@example.com',
+        subject: 'Disabled Turnstile Test',
+        message: 'Testing submission when Turnstile is explicitly disabled',
+        _gotcha: 'trap',
+      }),
+    });
+    assert.equal(res.status, 200);
+  });
+
+  test('Required mode: Rejects request with 400 when Turnstile token is missing', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Missing Token User',
+        email: 'user@example.com',
+        subject: 'Missing Token Test',
+        message: 'Testing submission without Turnstile token when required',
+      }),
+    });
+
+    assert.equal(res.status, 400);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaTokenMissing');
+  });
+
+  test('Required mode: Rejects request with 503 if secret key is not configured on server', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = ''; // Intentionally missing
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Misconfigured Server User',
+        email: 'user@example.com',
+        subject: 'Misconfigured Test',
+        message: 'Testing missing secret key safety',
+        turnstileToken: 'any_token',
+      }),
+    });
+
+    assert.equal(res.status, 503);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaConfigurationError');
+  });
+
+  test('Required mode: Accepts request when Cloudflare siteverify confirms token', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+    config.turnstile.expectedAction = 'contact';
+    config.turnstile.expectedHostname = 'sanastudio.ir';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        action: 'contact',
+        hostname: 'sanastudio.ir',
+      }));
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Valid Turnstile User',
+        email: 'valid@example.com',
+        subject: 'Valid Turnstile Test',
+        message: 'Testing successful verification against siteverify',
+        turnstileToken: 'valid_mock_token_123',
+        _gotcha: 'trap',
+      }),
+    });
+
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.success, true);
+  });
+
+  test('Required mode: Rejects invalid token with 403 CaptchaVerificationFailed', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: false,
+        'error-codes': ['invalid-input-response'],
+      }));
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Invalid Token User',
+        email: 'invalid@example.com',
+        subject: 'Invalid Token Test',
+        message: 'Testing rejected invalid token',
+        turnstileToken: 'invalid_token_999',
+      }),
+    });
+
+    assert.equal(res.status, 403);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaVerificationFailed');
+  });
+
+  test('Required mode: Rejects expired or reused token with 403 CaptchaTokenExpiredOrReused', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: false,
+        'error-codes': ['timeout-or-duplicate'],
+      }));
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Reused Token User',
+        email: 'reused@example.com',
+        subject: 'Reused Token Test',
+        message: 'Testing rejected reused/expired token',
+        turnstileToken: 'reused_token_999',
+      }),
+    });
+
+    assert.equal(res.status, 403);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaTokenExpiredOrReused');
+  });
+
+  test('Required mode: Rejects action mismatch with 403 CaptchaActionMismatch', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+    config.turnstile.expectedAction = 'contact';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        action: 'login', // Incorrect action
+        hostname: 'sanastudio.ir',
+      }));
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Action Mismatch User',
+        email: 'action@example.com',
+        subject: 'Action Mismatch Test',
+        message: 'Testing rejected action mismatch',
+        turnstileToken: 'wrong_action_token',
+      }),
+    });
+
+    assert.equal(res.status, 403);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaActionMismatch');
+  });
+
+  test('Required mode: Rejects hostname mismatch with 403 CaptchaHostnameMismatch', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+    config.turnstile.expectedHostname = 'sanastudio.ir';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        action: 'contact',
+        hostname: 'evil-phishing-domain.com', // Incorrect hostname
+      }));
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Hostname Mismatch User',
+        email: 'host@example.com',
+        subject: 'Hostname Mismatch Test',
+        message: 'Testing rejected hostname mismatch',
+        turnstileToken: 'wrong_host_token',
+      }),
+    });
+
+    assert.equal(res.status, 403);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaHostnameMismatch');
+  });
+
+  test('Required mode: Handles Cloudflare service unavailable (HTTP 500) safely with 503', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+
+    mockTurnstileHandler = (req, res) => {
+      res.writeHead(500);
+      res.end('Cloudflare Edge Error');
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Service Unavailable User',
+        email: 'down@example.com',
+        subject: 'Service Down Test',
+        message: 'Testing siteverify 500 error handling',
+        turnstileToken: 'token_during_outage',
+      }),
+    });
+
+    assert.equal(res.status, 503);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaServiceUnavailable');
+  });
+
+  test('Required mode: Handles Cloudflare timeout safely with 504', async () => {
+    config.turnstile.mode = 'required';
+    config.turnstile.secretKey = 'test_secret_key';
+    config.turnstile.timeoutMs = 100; // Fast timeout for test
+
+    mockTurnstileHandler = (req, res) => {
+      // Intentionally do not respond, simulating network stall
+      setTimeout(() => {
+        try {
+          res.writeHead(200);
+          res.end(JSON.stringify({ success: true }));
+        } catch {}
+      }, 300);
+    };
+
+    const res = await fetch(`${baseUrl}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getFreshIpHeader() },
+      body: JSON.stringify({
+        name: 'Timeout User',
+        email: 'timeout@example.com',
+        subject: 'Timeout Test',
+        message: 'Testing siteverify timeout handling',
+        turnstileToken: 'token_timing_out',
+      }),
+    });
+
+    assert.equal(res.status, 504);
+    const data = await res.json();
+    assert.equal(data.error, 'CaptchaTimeout');
+  });
+});
+
+describe('11. Idempotency & In-Flight Concurrency Locking', () => {
   test('Simultaneous requests with identical key/hash do not trigger multiple dispatches', async () => {
     const clientKey = `test_key_${Date.now()}`;
     const payload = {
@@ -372,7 +711,7 @@ describe('10. Idempotency & In-Flight Concurrency Locking', () => {
   });
 });
 
-describe('11. Error Redaction & Secrets Leak Prevention', () => {
+describe('12. Error Redaction & Secrets Leak Prevention', () => {
   test('Centralized error handler redacts password and secret strings from logs', () => {
     const { errorHandler } = require('../src/middleware/errorHandler');
     

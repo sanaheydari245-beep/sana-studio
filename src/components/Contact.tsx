@@ -34,6 +34,16 @@ interface FormErrors {
   message?: string;
 }
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement | string, options: Record<string, unknown>) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+  }
+}
+
 const OFFICIAL_EMAIL = 'sanaheydari245@gmail.com';
 const COOLDOWN_SECONDS = 60;
 const STORAGE_KEY_LAST_SENT = 'sana_contact_last_sent_timestamp';
@@ -76,6 +86,67 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
 
   // Rate limiting / cooldown timer
   const [remainingCooldown, setRemainingCooldown] = useState<number>(0);
+
+  // Cloudflare Turnstile Bot Protection integration
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const turnstileContainerRef = React.useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!turnstileSiteKey || !turnstileContainerRef.current) return;
+
+    const renderTurnstileWidget = () => {
+      if (window.turnstile && turnstileContainerRef.current && !turnstileWidgetId.current) {
+        try {
+          turnstileWidgetId.current = window.turnstile.render(turnstileContainerRef.current, {
+            sitekey: turnstileSiteKey,
+            action: 'contact',
+            theme: 'auto',
+            callback: (token: unknown) => {
+              if (typeof token === 'string') setTurnstileToken(token);
+            },
+            'expired-callback': () => {
+              setTurnstileToken('');
+            },
+            'error-callback': () => {
+              setTurnstileToken('');
+            },
+          });
+        } catch (e) {
+          console.warn('Turnstile widget render warning', e);
+        }
+      }
+    };
+
+    if (window.turnstile) {
+      renderTurnstileWidget();
+      return;
+    }
+
+    const scriptId = 'cf-turnstile-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => renderTurnstileWidget();
+      document.head.appendChild(script);
+    } else {
+      const existing = document.getElementById(scriptId);
+      if (existing) existing.addEventListener('load', renderTurnstileWidget);
+    }
+
+    return () => {
+      if (window.turnstile && turnstileWidgetId.current) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current);
+        } catch {}
+        turnstileWidgetId.current = null;
+      }
+    };
+  }, [turnstileSiteKey]);
 
   useEffect(() => {
     const checkCooldown = () => {
@@ -211,6 +282,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Idempotency-Key': idempotencyKey,
+          ...(turnstileToken ? { 'CF-Turnstile-Response': turnstileToken } : {}),
         },
         body: JSON.stringify({
           name: cleanFullName,
@@ -218,6 +290,8 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           subject: cleanSubject,
           message: cleanMessage,
           honeypot: '',
+          turnstileToken,
+          'cf-turnstile-response': turnstileToken,
         }),
       });
 
@@ -226,6 +300,12 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       if (response.ok && data?.success) {
         setStatus('success');
         setCurrentIdempotencyKey(''); // Clear key on successful delivery
+        if (window.turnstile && turnstileWidgetId.current) {
+          try {
+            window.turnstile.reset(turnstileWidgetId.current);
+          } catch {}
+        }
+        setTurnstileToken('');
         setFormData({
           fullName: '',
           email: '',
@@ -338,6 +418,12 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     setStatus('idle');
     setErrors({});
     setCurrentIdempotencyKey('');
+    if (window.turnstile && turnstileWidgetId.current) {
+      try {
+        window.turnstile.reset(turnstileWidgetId.current);
+      } catch {}
+    }
+    setTurnstileToken('');
   };
 
   return (
@@ -601,6 +687,13 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                     </p>
                   )}
                 </div>
+
+                {/* Cloudflare Turnstile Bot Protection Challenge (renders when VITE_TURNSTILE_SITE_KEY is provided) */}
+                {turnstileSiteKey && (
+                  <div className="flex justify-center my-2">
+                    <div ref={turnstileContainerRef} id="cf-turnstile-widget" />
+                  </div>
+                )}
 
                 {/* Professional Submit Button (14-16px) */}
                 <div className="pt-1">
