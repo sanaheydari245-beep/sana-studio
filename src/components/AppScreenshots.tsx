@@ -71,13 +71,13 @@ export const AppScreenshots: React.FC<AppScreenshotsProps> = ({ lang }) => {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 p-6 sm:p-8 items-center">
             {/* Screenshot Frame (5 cols on md+) */}
             <div className="md:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-[260px] sm:max-w-[280px] rounded-[36px] p-2.5 bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-slate-700/80 shadow-2xl shadow-emerald-950/30">
-                {/* Genuine Screenshot Display */}
-                <div className="rounded-[28px] overflow-hidden bg-black flex items-center justify-center aspect-[9/19]">
+              <div className="relative w-full max-w-[270px] sm:max-w-[290px] rounded-[38px] sm:rounded-[40px] p-3 sm:p-3.5 bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-slate-700/80 shadow-2xl shadow-emerald-950/30">
+                {/* Genuine Screenshot Display with comfortable inner spacing */}
+                <div className="rounded-[28px] overflow-hidden bg-black flex items-center justify-center p-1 sm:p-1.5 aspect-[9/18.5]">
                   <img
                     src={activeItem.image}
                     alt={activeItem.title}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-contain rounded-[18px]"
                     loading="lazy"
                   />
                 </div>
