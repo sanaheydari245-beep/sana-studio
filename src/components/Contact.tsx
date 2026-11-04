@@ -12,9 +12,7 @@ import {
   ShieldCheck,
   Info,
   Loader2,
-  AlertTriangle,
   RotateCcw,
-  ExternalLink,
 } from 'lucide-react';
 
 interface ContactProps {
@@ -44,7 +42,9 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   const t = translations[lang].contact;
 
   // Dedicated backend base URL (e.g. https://api.sanastudio.ir or http://localhost:5000)
+  // When empty, relative '/api/contact' is used, routing via same-origin or Vite dev proxy
   const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+  const contactApiEndpoint = apiBaseUrl ? `${apiBaseUrl}/api/contact` : '/api/contact';
 
   // Environment variables for EmailJS (preserved as reliable fallback)
   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
@@ -54,10 +54,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   const isEmailJSConfigured = Boolean(
     serviceId.trim() && templateId.trim() && publicKey.trim()
   );
-
-  // Ready if either the dedicated backend or EmailJS is configured
-  const isBackendConfigured = Boolean(apiBaseUrl);
-  const isAnyServiceConfigured = isBackendConfigured || isEmailJSConfigured;
 
   // Active idempotency key for the current submission attempt
   // Reused across retries if network fails, regenerated only on brand-new input / reset
@@ -189,12 +185,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       return;
     }
 
-    // If neither dedicated backend nor EmailJS is configured, redirect to direct mailto
-    if (!isAnyServiceConfigured) {
-      handleDirectMail();
-      return;
-    }
-
     setStatus('submitting');
     setErrorMessage('');
 
@@ -213,79 +203,74 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       setCurrentIdempotencyKey(idempotencyKey);
     }
 
-    // Primary: Attempt delivery via dedicated Node.js Chabokan Backend if configured
-    // Note: We map frontend fullName directly to backend "name" parameter
-    // strictly adhering to the backend API contract without requiring breaking changes.
-    if (isBackendConfigured) {
-      try {
-        const response = await fetch(`${apiBaseUrl}/api/contact`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Idempotency-Key': idempotencyKey,
-          },
-          body: JSON.stringify({
-            name: cleanFullName,
-            email: cleanEmail,
-            subject: cleanSubject,
-            message: cleanMessage,
-            honeypot: '',
-          }),
+    // Primary: Attempt direct delivery via dedicated Node.js Backend API
+    try {
+      const response = await fetch(contactApiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify({
+          name: cleanFullName,
+          email: cleanEmail,
+          subject: cleanSubject,
+          message: cleanMessage,
+          honeypot: '',
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (response.ok && data?.success) {
+        setStatus('success');
+        setCurrentIdempotencyKey(''); // Clear key on successful delivery
+        setFormData({
+          fullName: '',
+          email: '',
+          subject: '',
+          message: '',
+          honeypot: '',
         });
+        setErrors({});
 
-        const data = await response.json().catch(() => null);
-
-        if (response.ok && data?.success) {
-          setStatus('success');
-          setCurrentIdempotencyKey(''); // Clear key on successful delivery
-          setFormData({
-            fullName: '',
-            email: '',
-            subject: '',
-            message: '',
-            honeypot: '',
-          });
-          setErrors({});
-
-          try {
-            localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
-            setRemainingCooldown(COOLDOWN_SECONDS);
-          } catch {
-            // ignore storage error
-          }
-          return;
+        try {
+          localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
+          setRemainingCooldown(COOLDOWN_SECONDS);
+        } catch {
+          // ignore storage error
         }
+        return;
+      }
 
-        // If backend returned rate limit or validation error, report error and DO NOT fall back to EmailJS
-        if (response.status === 429) {
-          setStatus('error');
-          setErrorMessage(data?.messageFa || data?.message || t.rateLimitWarning);
-          return;
-        }
+      // If backend returned rate limit or validation error, report error directly
+      if (response.status === 429) {
+        setStatus('error');
+        setErrorMessage(data?.messageFa || data?.message || t.rateLimitWarning);
+        return;
+      }
 
-        if (response.status === 400 && data?.errors) {
-          setStatus('error');
-          const firstErr = Object.values(data.errors)[0] as string;
-          setErrorMessage(firstErr || t.errorMessage);
-          return;
-        }
+      if (response.status === 400 && data?.errors) {
+        setStatus('error');
+        const firstErr = Object.values(data.errors)[0] as string;
+        setErrorMessage(firstErr || t.errorMessage);
+        return;
+      }
 
-        // Backend returned explicit 5xx error (e.g. 503 SMTP unavailable)
-        // If EmailJS is NOT available, throw to report error
-        if (!isEmailJSConfigured) {
-          throw new Error(data?.messageFa || data?.message || t.errorMessage);
-        }
+      // Backend returned explicit 5xx error (e.g. 503 SMTP unavailable)
+      if (!isEmailJSConfigured) {
+        throw new Error(data?.messageFa || data?.message || t.errorMessage);
+      }
 
-        console.warn('Dedicated backend returned server error, falling back to EmailJS...');
-      } catch (backendErr: unknown) {
-        console.warn('Primary backend delivery attempt failed (network/server):', backendErr);
-        if (!isEmailJSConfigured) {
-          setStatus('error');
-          const errObj = backendErr as { message?: string };
-          setErrorMessage(errObj?.message || t.errorMessage);
-          return;
-        }
+      console.warn('Dedicated backend returned server error, attempting EmailJS fallback...');
+    } catch (backendErr: unknown) {
+      console.warn('Primary backend delivery attempt failed (network/server):', backendErr);
+      if (!isEmailJSConfigured) {
+        setStatus('error');
+        const errObj = backendErr as { message?: string };
+        setErrorMessage(errObj?.message || t.errorMessage);
+        return;
       }
     }
 
@@ -343,22 +328,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     }
   };
 
-  const handleDirectMail = () => {
-    const cleanFullName = formData.fullName.trim();
-    const encodedSubject = encodeURIComponent(
-      `[Emerald Life Contact] ${formData.subject.trim() || 'New Inquiry'}`
-    );
-    const senderInfo =
-      cleanFullName || formData.email.trim()
-        ? `فرستنده / Sender: ${cleanFullName} (${formData.email.trim()})\n\n`
-        : '';
-    const encodedBody = encodeURIComponent(
-      `${senderInfo}${formData.message.trim()}`
-    );
-
-    window.location.href = `mailto:${OFFICIAL_EMAIL}?subject=${encodedSubject}&body=${encodedBody}`;
-  };
-
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(OFFICIAL_EMAIL);
     setCopiedEmail(true);
@@ -393,23 +362,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start text-start">
           {/* Form Column (7 cols desktop) */}
           <div className="lg:col-span-7">
-            {/* If neither backend nor EmailJS is configured, show helpful setup note */}
-            {!isAnyServiceConfigured && (
-              <div className="mb-4 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-slate-900 dark:text-white">
-                <div className="flex items-start gap-2.5">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs space-y-1">
-                    <p className="font-semibold text-amber-800 dark:text-amber-300">
-                      {t.unconfiguredNotice}
-                    </p>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {t.unconfiguredSetupHint}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Success State Banner */}
             {status === 'success' ? (
               <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#16241E] border border-emerald-500/30 dark:border-emerald-500/40 shadow-md text-center space-y-4">
@@ -483,11 +435,19 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                         <div className="pt-1.5 flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={handleDirectMail}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-700 dark:text-red-300 font-medium transition-colors"
+                            onClick={handleResetForm}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition-colors"
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            <span>{t.fallbackMailBtn}</span>
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>{t.tryAgainBtn}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCopyEmail}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium transition-colors"
+                          >
+                            {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                            <span>{copiedEmail ? (lang === 'fa' ? 'نشانی کپی شد' : 'Copied') : (lang === 'fa' ? 'کپی نشانی ایمیل' : 'Copy Email Address')}</span>
                           </button>
                         </div>
                       </div>
@@ -643,11 +603,11 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                 </div>
 
                 {/* Professional Submit Button (14-16px) */}
-                <div className="pt-1 flex flex-col sm:flex-row gap-3">
+                <div className="pt-1">
                   <button
                     type="submit"
                     disabled={status === 'submitting' || remainingCooldown > 0}
-                    className="flex-1 h-11 sm:h-12 flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm sm:text-[15px] shadow-lg shadow-emerald-600/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.99]"
+                    className="w-full h-11 sm:h-12 flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm sm:text-[15px] shadow-lg shadow-emerald-600/25 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.99]"
                   >
                     {status === 'submitting' ? (
                       <>
@@ -660,26 +620,11 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                         <span>
                           {remainingCooldown > 0
                             ? `${t.rateLimitWarning.slice(0, 20)}... (${remainingCooldown}s)`
-                            : isAnyServiceConfigured
-                            ? t.submitBtn
-                            : t.fallbackMailBtn}
+                            : t.submitBtn}
                         </span>
                       </>
                     )}
                   </button>
-
-                  {/* Secondary direct mail fallback if desired */}
-                  {isAnyServiceConfigured && (
-                    <button
-                      type="button"
-                      onClick={handleDirectMail}
-                      title={t.fallbackMailBtn}
-                      className="px-4 h-11 sm:h-12 flex items-center justify-center gap-1.5 rounded-2xl border border-emerald-500/20 dark:border-emerald-500/30 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-semibold transition-colors focus:outline-none"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">{t.fallbackMailBtn}</span>
-                    </button>
-                  )}
                 </div>
               </form>
             )}
@@ -693,13 +638,9 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                 {t.directEmailLabel}
               </span>
               <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0B1310] border border-emerald-500/15 dark:border-emerald-500/25">
-                <a
-                  href={`mailto:${OFFICIAL_EMAIL}`}
-                  className="font-mono text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
-                  title="ارسال مستقیم ایمیل"
-                >
+                <span className="font-mono text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">
                   {OFFICIAL_EMAIL}
-                </a>
+                </span>
                 <button
                   type="button"
                   onClick={handleCopyEmail}

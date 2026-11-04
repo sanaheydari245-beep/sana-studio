@@ -94,6 +94,8 @@ function acquireIdempotencyLock(clientKey, payload) {
     resolveLock = resolve;
     rejectLock = reject;
   });
+  // Prevent unhandled promise rejection crash if rejected when no concurrent caller is waiting
+  lockPromise.catch(() => {});
 
   const inFlightRecord = {
     state: 'in_flight',

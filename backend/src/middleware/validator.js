@@ -13,6 +13,14 @@ function sanitizeText(str) {
 }
 
 /**
+ * Strips newlines and carriage returns to prevent CRLF Email Header Injection
+ * for single-line headers (Name, Subject).
+ */
+function sanitizeSingleLine(str) {
+  return sanitizeText(str).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/**
  * Standard email validation regex
  */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,10 +43,10 @@ function validateContactRequest(req, res, next) {
 
   const errors = {};
 
-  // Clean values
-  const cleanName = sanitizeText(name);
+  // Clean values: enforce single-line stripping on headers to neutralize header injection
+  const cleanName = sanitizeSingleLine(name);
   const cleanEmail = (email || '').toString().trim();
-  const cleanSubject = sanitizeText(subject);
+  const cleanSubject = sanitizeSingleLine(subject);
   const cleanMessage = sanitizeText(message);
 
   // Validate Name
@@ -98,5 +106,6 @@ function validateContactRequest(req, res, next) {
 
 module.exports = {
   sanitizeText,
+  sanitizeSingleLine,
   validateContactRequest,
 };

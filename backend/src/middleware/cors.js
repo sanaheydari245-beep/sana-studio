@@ -28,7 +28,7 @@ const corsOptions = {
     return callback(new Error(`CORS Error: Origin '${origin}' is not allowed by policy.`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Idempotency-Key', 'X-Idempotency-Key'],
   credentials: true,
   maxAge: 86400, // 24 hours preflight cache
 };
