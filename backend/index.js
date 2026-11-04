@@ -49,7 +49,7 @@ app.use(generalLimiter);
 // 6. Base Root Route
 app.get('/', (req, res) => {
   res.status(200).json({
-    name: 'Sana Studio API',
+    name: 'Emerald Life API',
     version: '1.0.0',
     status: 'running',
     health: '/api/health',
@@ -68,7 +68,7 @@ app.use(errorHandler);
 if (require.main === module) {
   const PORT = config.port;
   const server = app.listen(PORT, () => {
-    console.log(`🚀 Sana Studio Backend running on port ${PORT} [${config.env}]`);
+    console.log(`🚀 Emerald Life Backend running on port ${PORT} [${config.env}]`);
     console.log(`👉 Health check: http://localhost:${PORT}/api/health`);
     console.log(`👉 Contact endpoint: http://localhost:${PORT}/api/contact`);
   });

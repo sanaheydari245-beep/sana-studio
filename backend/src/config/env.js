@@ -92,7 +92,7 @@ const config = {
     user: process.env.SMTP_USER || 'sanaheydari245@gmail.com',
     pass: process.env.SMTP_PASS || '',
     to: process.env.MAIL_TO || 'sanaheydari245@gmail.com',
-    fromName: process.env.MAIL_FROM_NAME || 'Sana Studio Contact Form',
+    fromName: process.env.MAIL_FROM_NAME || 'Emerald Life Contact Form',
   },
 
   turnstile: {

@@ -579,7 +579,7 @@ export const translations: Record<Language, TranslationSchema> = {
       terms: 'شرایط و ضوابط استفاده',
       copyright: 'تمامی حقوق مادی و معنوی برای اپلیکیشن Emerald Life محفوظ است.',
       reserved: 'طراحی اختصاصی با هویت بصری Emerald Green و فونت اصیل وزیرمتن.',
-      designedBy: 'توسعه‌یافته توسط Sana Studio',
+      designedBy: 'توسعه‌یافته برای Emerald Life',
     },
     privacyModal: {
       title: 'سیاست حفظ حریم خصوصی (Privacy Policy)',
@@ -1017,7 +1017,7 @@ export const translations: Record<Language, TranslationSchema> = {
       terms: 'Terms of Service',
       copyright: 'All rights reserved for Emerald Life.',
       reserved: 'Crafted with Emerald Green visual identity and authentic Vazirmatn typography.',
-      designedBy: 'Developed by Sana Studio',
+      designedBy: 'Developed for Emerald Life',
     },
     privacyModal: {
       title: 'Privacy Policy',

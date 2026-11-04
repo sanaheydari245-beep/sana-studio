@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import emailjs from '@emailjs/browser';
 import type { Language } from '../data/translations';
 import { translations } from '../data/translations';
 import {
@@ -55,15 +54,6 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
   // When empty, relative '/api/contact' is used, routing via same-origin or Vite dev proxy
   const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
   const contactApiEndpoint = apiBaseUrl ? `${apiBaseUrl}/api/contact` : '/api/contact';
-
-  // Environment variables for EmailJS (preserved as reliable fallback)
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
-
-  const isEmailJSConfigured = Boolean(
-    serviceId.trim() && templateId.trim() && publicKey.trim()
-  );
 
   // Active idempotency key for the current submission attempt
   // Reused across retries if network fails, regenerated only on brand-new input / reset
@@ -274,7 +264,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
       setCurrentIdempotencyKey(idempotencyKey);
     }
 
-    // Primary: Attempt direct delivery via dedicated Node.js Backend API
+    // Direct delivery exclusively via dedicated Node.js Backend API
     try {
       const response = await fetch(contactApiEndpoint, {
         method: 'POST',
@@ -324,7 +314,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         return;
       }
 
-      // If backend returned rate limit or validation error, report error directly
+      // Handle specific HTTP error responses
       if (response.status === 429) {
         setStatus('error');
         setErrorMessage(data?.messageFa || data?.message || t.rateLimitWarning);
@@ -338,73 +328,14 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
         return;
       }
 
-      // Backend returned explicit 5xx error (e.g. 503 SMTP unavailable)
-      if (!isEmailJSConfigured) {
-        throw new Error(data?.messageFa || data?.message || t.errorMessage);
-      }
-
-      console.warn('Dedicated backend returned server error, attempting EmailJS fallback...');
-    } catch (backendErr: unknown) {
-      console.warn('Primary backend delivery attempt failed (network/server):', backendErr);
-      if (!isEmailJSConfigured) {
-        setStatus('error');
-        const errObj = backendErr as { message?: string };
-        setErrorMessage(errObj?.message || t.errorMessage);
-        return;
-      }
-    }
-
-    // Secondary / Fallback: EmailJS integration
-    if (isEmailJSConfigured) {
-      try {
-        const templateParams = {
-          name: cleanFullName,
-          from_name: cleanFullName,
-          reply_to: cleanEmail,
-          subject: cleanSubject,
-          message: cleanMessage,
-          to_email: OFFICIAL_EMAIL,
-          sent_at: new Date().toLocaleString(lang === 'fa' ? 'fa-IR' : 'en-US', {
-            dateStyle: 'full',
-            timeStyle: 'medium',
-          }),
-        };
-
-        const response = await emailjs.send(
-          serviceId,
-          templateId,
-          templateParams,
-          {
-            publicKey: publicKey,
-          }
-        );
-
-        if (response.status === 200) {
-          setStatus('success');
-          setFormData({
-            fullName: '',
-            email: '',
-            subject: '',
-            message: '',
-            honeypot: '',
-          });
-          setErrors({});
-
-          try {
-            localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
-            setRemainingCooldown(COOLDOWN_SECONDS);
-          } catch {
-            // ignore storage error
-          }
-        } else {
-          setStatus('error');
-          setErrorMessage(response.text || t.errorMessage);
-        }
-      } catch (err: unknown) {
-        setStatus('error');
-        const errObj = err as { text?: string; message?: string };
-        setErrorMessage(errObj?.text || errObj?.message || t.errorMessage);
-      }
+      // Any other backend error (400, 403, 500, 503, etc.)
+      setStatus('error');
+      setErrorMessage(data?.messageFa || data?.message || t.errorMessage);
+    } catch (networkErr: unknown) {
+      console.warn('Backend API delivery attempt failed (network error):', networkErr);
+      setStatus('error');
+      const errObj = networkErr as { message?: string };
+      setErrorMessage(errObj?.message || t.errorMessage);
     }
   };
 

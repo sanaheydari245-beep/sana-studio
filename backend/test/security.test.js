@@ -101,7 +101,7 @@ describe('2. Base API & Health Endpoints', () => {
     const res = await fetch(`${baseUrl}/`);
     assert.equal(res.status, 200);
     const data = await res.json();
-    assert.equal(data.name, 'Sana Studio API');
+    assert.equal(data.name, 'Emerald Life API');
     assert.equal(data.status, 'running');
   });
 

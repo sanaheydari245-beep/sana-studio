@@ -1,7 +1,7 @@
 {
-  "name": "sana-studio-backend",
+  "name": "emerald-life-backend",
   "version": "1.0.0",
-  "description": "Dedicated Node.js backend for Sana Studio website",
+  "description": "Dedicated Node.js backend for Emerald Life website",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
@@ -10,12 +10,12 @@
     "test": "node --test test/**/*.test.js"
   },
   "keywords": [
-    "sana-studio",
+    "emerald-life",
     "backend",
     "express",
     "nodemailer"
   ],
-  "author": "Sana Studio",
+  "author": "Emerald Life",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",

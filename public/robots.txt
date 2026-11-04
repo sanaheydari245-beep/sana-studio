@@ -1,4 +1,4 @@
-# Sana Studio robots.txt
+# Emerald Life robots.txt
 User-agent: *
 Allow: /
 
