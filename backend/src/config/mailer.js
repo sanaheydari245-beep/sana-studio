@@ -41,7 +41,8 @@ async function verifyConnection() {
     await client.verify();
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    const sanitizedError = (error.message || '').replace(/(pass(word)?|secret|token|key|auth)\s*[:=]\s*[^\s]+/gi, '$1=[REDACTED]');
+    return { success: false, error: sanitizedError };
   }
 }
 

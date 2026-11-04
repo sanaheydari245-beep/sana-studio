@@ -106,4 +106,5 @@ async function sendContactEmail(data) {
 
 module.exports = {
   sendContactEmail,
+  escapeHtml,
 };

@@ -58,7 +58,8 @@ async function submitContactForm(req, res, next) {
 
     return res.status(200).json(responseBody);
   } catch (error) {
-    console.error('[Contact Controller Error]', error.message);
+    const safeErrMsg = (error.message || '').replace(/(pass(word)?|secret|token|key|auth)\s*[:=]\s*[^\s]+/gi, '$1=[REDACTED]');
+    console.error('[Contact Controller Error]', safeErrMsg);
 
     // Release lock as failed so user can retry cleanly
     if (lock.release) {

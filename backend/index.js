@@ -11,28 +11,42 @@ const contactRoutes = require('./src/routes/contact.routes');
 
 const app = express();
 
-// 1. Trust proxy configuration for Chabokan reverse proxy
-// When behind Nginx / Traefik on Chabokan, trust the first hop so req.ip and rate limiting work accurately
-if (config.trustProxy) {
+// 1. Trust proxy configuration
+// Narrow trust proxy configuration (clamped against spoofing, defaults to loopback or 1 hop on Chabokan)
+if (config.trustProxy !== false) {
   app.set('trust proxy', config.trustProxy);
 }
 
-// 2. Security HTTP headers with Helmet
+// 2. Security HTTP headers with Helmet tailored for JSON REST API
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+  frameguard: { action: 'deny' },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  noSniff: true,
+  referrerPolicy: { policy: 'no-referrer' },
 }));
 
 // 3. CORS Policy
 app.use(corsMiddleware);
 
-// 4. Request Body Parsers (with size limits to prevent payload abuse)
+// 4. Request Body Parsers (strict size limits to prevent payload abuse)
 app.use(express.json({ limit: '64kb' }));
 app.use(express.urlencoded({ extended: true, limit: '64kb' }));
 
 // 5. Global Rate Limiter for general endpoints
 app.use(generalLimiter);
 
-// 6. Base Routes
+// 6. Base Root Route
 app.get('/', (req, res) => {
   res.status(200).json({
     name: 'Sana Studio API',
