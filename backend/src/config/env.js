@@ -59,7 +59,7 @@ if (process.env.ALLOWED_ORIGINS) {
 const config = {
   env: resolvedEnv,
   isProduction,
-  port: parseInt(process.env.PORT || '5000', 10),
+  port: parseInt(process.env.PORT || '3000', 10),
 
   // Reverse Proxy Trust Configuration:
   // - 'loopback': Only trusts loopback proxy (127.0.0.1 / ::1) - safest baseline.

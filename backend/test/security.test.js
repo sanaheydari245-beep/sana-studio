@@ -96,16 +96,46 @@ describe('1. Nodemailer Version & Package Integrity', () => {
   });
 });
 
-describe('2. Base API & Health Endpoints', () => {
-  test('GET / returns API info', async () => {
+describe('2. Frontend Static Serving & Health Endpoints', () => {
+  test('GET / returns the frontend HTML', async () => {
     const res = await fetch(`${baseUrl}/`);
     assert.equal(res.status, 200);
-    const data = await res.json();
-    assert.equal(data.name, 'Emerald Life API');
-    assert.equal(data.status, 'running');
+    assert.match(res.headers.get('content-type'), /text\/html/);
+    const html = await res.text();
+    assert.ok(html.includes('<title>Emerald Life'), 'Contains Emerald Life title');
+    assert.ok(html.includes('<div id="root"></div>'), 'Contains root mounting point');
   });
 
-  test('GET /api/health returns healthy status and uptime', async () => {
+  test('Frontend JavaScript and CSS assets are accessible', async () => {
+    const distAssetsDir = path.resolve(__dirname, '../../dist/assets');
+    const files = fs.readdirSync(distAssetsDir);
+    const jsFile = files.find(f => f.endsWith('.js'));
+    const cssFile = files.find(f => f.endsWith('.css'));
+
+    assert.ok(jsFile, 'Compiled JS bundle exists');
+    assert.ok(cssFile, 'Compiled CSS bundle exists');
+
+    const jsRes = await fetch(`${baseUrl}/assets/${jsFile}`);
+    assert.equal(jsRes.status, 200);
+    assert.match(jsRes.headers.get('content-type'), /(javascript|ecmascript)/);
+
+    const cssRes = await fetch(`${baseUrl}/assets/${cssFile}`);
+    assert.equal(cssRes.status, 200);
+    assert.match(cssRes.headers.get('content-type'), /text\/css/);
+  });
+
+  test('React Router routes return the frontend entry point', async () => {
+    const routes = ['/fa', '/en', '/contact', '/privacy'];
+    for (const r of routes) {
+      const res = await fetch(`${baseUrl}${r}`);
+      assert.equal(res.status, 200, `Route ${r} should return 200`);
+      assert.match(res.headers.get('content-type'), /text\/html/);
+      const html = await res.text();
+      assert.ok(html.includes('<div id="root"></div>'), `Route ${r} serves index.html`);
+    }
+  });
+
+  test('GET /api/health still returns the expected JSON response', async () => {
     const res = await fetch(`${baseUrl}/api/health`);
     assert.equal(res.status, 200);
     const data = await res.json();
@@ -125,6 +155,28 @@ describe('2. Base API & Health Endpoints', () => {
     } finally {
       config.env = originalEnv;
     }
+  });
+
+  test('Unknown API routes return the expected API 404 response (never frontend HTML)', async () => {
+    const resGet = await fetch(`${baseUrl}/api/nonexistent-route-12345`);
+    assert.equal(resGet.status, 404);
+    assert.match(resGet.headers.get('content-type'), /application\/json/);
+    const dataGet = await resGet.json();
+    assert.equal(dataGet.success, false);
+    assert.equal(dataGet.error, 'NotFound');
+
+    const resPost = await fetch(`${baseUrl}/api/unknown/action`, { method: 'POST' });
+    assert.equal(resPost.status, 404);
+    assert.match(resPost.headers.get('content-type'), /application\/json/);
+    const dataPost = await resPost.json();
+    assert.equal(dataPost.success, false);
+    assert.equal(dataPost.error, 'NotFound');
+  });
+
+  test('Missing static file with extension returns 404, not frontend HTML', async () => {
+    const res = await fetch(`${baseUrl}/assets/missing-asset-file.js`);
+    assert.equal(res.status, 404);
+    assert.match(res.headers.get('content-type'), /application\/json/);
   });
 });
 

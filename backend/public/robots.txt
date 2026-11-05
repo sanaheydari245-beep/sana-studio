@@ -1,0 +1,5 @@
+# Emerald Life robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://sanastudio.ir/sitemap.xml
